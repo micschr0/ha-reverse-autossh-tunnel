@@ -15,12 +15,15 @@ _setup_test_env() {
     source "$BATS_TEST_DIRNAME/helpers/bashio.sh"
 
     local lib="$BATS_TEST_DIRNAME/../autossh/rootfs/usr/lib/autossh"
+    # Sources are conditional so TDD red-phase (tests written before
+    # their target lib exists) fails with the expected "command not
+    # found", not "No such file or directory".
     # shellcheck source=../autossh/rootfs/usr/lib/autossh/validate.sh
-    source "$lib/validate.sh"
+    [[ -f "$lib/validate.sh" ]] && source "$lib/validate.sh"
     # shellcheck source=../autossh/rootfs/usr/lib/autossh/keygen.sh
-    source "$lib/keygen.sh"
+    [[ -f "$lib/keygen.sh"   ]] && source "$lib/keygen.sh"
     # shellcheck source=../autossh/rootfs/usr/lib/autossh/tunnel.sh
-    source "$lib/tunnel.sh"
+    [[ -f "$lib/tunnel.sh"   ]] && source "$lib/tunnel.sh"
 }
 
 _set_option() {
