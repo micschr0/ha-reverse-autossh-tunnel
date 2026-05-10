@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Mock: exits with the code in $BATS_TEST_TMPDIR/mock-curl-status (default 0)
+status=$(cat "$BATS_TEST_TMPDIR/mock-curl-status" 2>/dev/null)
+exit "${status:-0}"
