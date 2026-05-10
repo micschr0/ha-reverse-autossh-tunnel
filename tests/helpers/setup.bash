@@ -19,11 +19,11 @@ _setup_test_env() {
     # their target lib exists) fails with the expected "command not
     # found", not "No such file or directory".
     # shellcheck source=../autossh/rootfs/usr/lib/autossh/validate.sh
-    [[ -f "$lib/validate.sh" ]] && source "$lib/validate.sh"
+    [[ -f "$lib/validate.sh" ]] && source "$lib/validate.sh" || true
     # shellcheck source=../autossh/rootfs/usr/lib/autossh/keygen.sh
-    [[ -f "$lib/keygen.sh"   ]] && source "$lib/keygen.sh"
+    [[ -f "$lib/keygen.sh"   ]] && source "$lib/keygen.sh"   || true
     # shellcheck source=../autossh/rootfs/usr/lib/autossh/tunnel.sh
-    [[ -f "$lib/tunnel.sh"   ]] && source "$lib/tunnel.sh"
+    [[ -f "$lib/tunnel.sh"   ]] && source "$lib/tunnel.sh"   || true
 }
 
 _set_option() {
