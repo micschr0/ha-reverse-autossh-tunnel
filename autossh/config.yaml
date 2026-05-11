@@ -2,7 +2,7 @@ name: SSH Reverse Tunnel (autossh)
 version: 1.0.0
 slug: autossh
 description: Persistent reverse SSH tunnel for exposing Home Assistant through a remote server
-url: https://github.com/REPLACE_OWNER/ha-reverse-autossh-tunnel
+url: https://github.com/micschr0/ha-reverse-autossh-tunnel
 arch:
   - amd64
   - aarch64

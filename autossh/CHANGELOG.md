@@ -6,7 +6,7 @@ this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-## [1.0.0] - YYYY-MM-DD
+## [1.0.0] - 2026-05-11
 
 ### Added
 
@@ -20,5 +20,5 @@ this project adheres to [Semantic Versioning](https://semver.org/).
   build, weekly base-image refresh.
 - Renovate manages base-image and Action versions.
 
-[Unreleased]: https://github.com/REPLACE_OWNER/ha-reverse-autossh-tunnel/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/REPLACE_OWNER/ha-reverse-autossh-tunnel/releases/tag/v1.0.0
+[Unreleased]: https://github.com/micschr0/ha-reverse-autossh-tunnel/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/micschr0/ha-reverse-autossh-tunnel/releases/tag/v1.0.0

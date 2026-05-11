@@ -3,7 +3,7 @@
 ## Reporting a Vulnerability
 
 Please open a private GitHub Security Advisory at
-https://github.com/REPLACE_OWNER/ha-reverse-autossh-tunnel/security/advisories/new
+https://github.com/micschr0/ha-reverse-autossh-tunnel/security/advisories/new
 instead of a public issue. We will acknowledge within seven days.
 
 ## Scope
