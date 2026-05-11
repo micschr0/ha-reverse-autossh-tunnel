@@ -55,7 +55,7 @@ jobs:
           cat > /tmp/options.json <<'EOF'
           {"hostname":"smoke.invalid","ssh_port":22,"username":"autossh",
            "remote_ip_address":"127.0.0.1","remote_port":8123,
-           "remote_forwarding":[],"other_ssh_options":"",
+           "remote_forwarding":["2222:127.0.0.1:22"],"other_ssh_options":"",
            "monitoring_port":0,"force_keygen":false,
            "skip_remote_host_checks":true}
           EOF
@@ -67,8 +67,9 @@ jobs:
             -c 'source /usr/lib/bashio/bashio.sh && \
                 source /usr/lib/autossh/keygen.sh && \
                 source /usr/lib/autossh/tunnel.sh && \
-                HASSIO_OPTIONS_FILE=/data/options.json autossh::keygen && \
-                HASSIO_OPTIONS_FILE=/data/options.json autossh::tunnel' \
+                autossh::keygen && \
+                autossh::tunnel' \
             | tee smoke.log
           grep -q 'command="",restrict,port-forwarding' smoke.log
           grep -q 'autossh -M 0 -N' smoke.log
+          grep -q -- '-R 2222:127.0.0.1:22' smoke.log

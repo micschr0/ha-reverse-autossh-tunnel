@@ -56,10 +56,11 @@ autossh::tunnel() {
         -R "${remote_ip}:${remote_port}:${local_ip}:${local_port}"
     )
 
+    local options_file="${HASSIO_OPTIONS_FILE:-/data/options.json}"
     local count entry i
-    count=$(jq -r '.remote_forwarding | length' "$HASSIO_OPTIONS_FILE")
+    count=$(jq -r '.remote_forwarding | length' "$options_file")
     for (( i = 0; i < count; i++ )); do
-        entry=$(jq -r ".remote_forwarding[$i]" "$HASSIO_OPTIONS_FILE")
+        entry=$(jq -r ".remote_forwarding[$i]" "$options_file")
         args+=(-R "$entry")
     done
 
