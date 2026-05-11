@@ -2,11 +2,11 @@
 # shellcheck shell=bash
 set -euo pipefail
 
-# shellcheck source=/usr/lib/autossh/validate.sh
+# shellcheck source=../../../usr/lib/autossh/validate.sh
 source /usr/lib/autossh/validate.sh
-# shellcheck source=/usr/lib/autossh/keygen.sh
+# shellcheck source=../../../usr/lib/autossh/keygen.sh
 source /usr/lib/autossh/keygen.sh
-# shellcheck source=/usr/lib/autossh/tunnel.sh
+# shellcheck source=../../../usr/lib/autossh/tunnel.sh
 source /usr/lib/autossh/tunnel.sh
 
 autossh::validate
