@@ -84,7 +84,7 @@ Restart Home Assistant.
 | `local_port` | port? | `remote_port` | HA port. |
 | `remote_forwarding` | list[str] | `[]` | Extra `-R` forwards, e.g. `["2222:127.0.0.1:22"]`. |
 | `other_ssh_options` | str | `""` | Appended to the autossh/ssh command. Use `-v` for verbose logs. |
-| `monitoring_port` | int (0–65535) | `0` | autossh's internal watchdog port. `0` lets autossh choose. |
+| `monitoring_port` | int (0–65535) | `0` | autossh's echo-monitoring port. `0` disables the echo port; connection health relies on `ServerAliveInterval`/`ServerAliveCountMax` plus s6 restart. Set a free TCP port (e.g. `12345`) to enable autossh's active connection check. |
 | `force_keygen` | bool | `false` | Regenerate the keypair on next start. |
 | `skip_remote_host_checks` | bool | `false` | Skip our `ssh-keyscan` pinning and use `StrictHostKeyChecking=accept-new` instead. Insecure for first-connect MITM; use only for debugging or known-good networks. |
 

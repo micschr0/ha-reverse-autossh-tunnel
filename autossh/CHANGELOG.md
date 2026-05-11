@@ -14,7 +14,7 @@ this project adheres to [Semantic Versioning](https://semver.org/).
 - Persistent reverse SSH tunnel via autossh with built-in monitoring port.
 - ED25519 keypair auto-generation; log line is copy-pasteable into
   `authorized_keys` with the recommended restriction prefix.
-- Host-key pinning via `ssh-keyscan` (skippable for debugging).
+- Host-key pinning via `ssh-keyscan`; `skip_remote_host_checks` falls back to `StrictHostKeyChecking=accept-new` instead of failing closed.
 - Multi-arch build (amd64, aarch64, armv7) on `ghcr.io/home-assistant/<arch>-base:3.23`.
 - GitHub Actions CI: hadolint, shellcheck, yamllint, BATS, multi-arch
   build, weekly base-image refresh.
