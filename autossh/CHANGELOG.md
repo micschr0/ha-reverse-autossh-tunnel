@@ -1,0 +1,24 @@
+# Changelog
+
+All notable changes to this add-on are documented here. The format is
+based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
+this project adheres to [Semantic Versioning](https://semver.org/).
+
+## [Unreleased]
+
+## [1.0.0] - YYYY-MM-DD
+
+### Added
+
+- Initial release.
+- Persistent reverse SSH tunnel via autossh with built-in monitoring port.
+- ED25519 keypair auto-generation; log line is copy-pasteable into
+  `authorized_keys` with the recommended restriction prefix.
+- Host-key pinning via `ssh-keyscan` (skippable for debugging).
+- Multi-arch build (amd64, aarch64, armv7) on `ghcr.io/home-assistant/<arch>-base:3.23`.
+- GitHub Actions CI: hadolint, shellcheck, yamllint, BATS, multi-arch
+  build, weekly base-image refresh.
+- Renovate manages base-image and Action versions.
+
+[Unreleased]: https://github.com/REPLACE_OWNER/ha-reverse-autossh-tunnel/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/REPLACE_OWNER/ha-reverse-autossh-tunnel/releases/tag/v1.0.0
