@@ -29,7 +29,11 @@ autossh::tunnel() {
         local_port="$remote_port"
     fi
 
-    if ! bashio::config.true 'skip_remote_host_checks'; then
+    local strict_check="yes"
+    if bashio::config.true 'skip_remote_host_checks'; then
+        strict_check="accept-new"
+        bashio::log.warning "skip_remote_host_checks=true: using StrictHostKeyChecking=accept-new (host key trusted on first connect)."
+    else
         bashio::log.info "Fetching SSH host key for ${hostname}:${ssh_port}"
         local scan
         scan=$(ssh-keyscan -p "$ssh_port" "$hostname" 2>/dev/null || true)
@@ -47,7 +51,7 @@ autossh::tunnel() {
         -i "$key_file"
         -o "ServerAliveInterval=30"
         -o "ServerAliveCountMax=3"
-        -o "StrictHostKeyChecking=yes"
+        -o "StrictHostKeyChecking=${strict_check}"
         -o "UserKnownHostsFile=${known_hosts}"
         -R "${remote_ip}:${remote_port}:${local_ip}:${local_port}"
     )

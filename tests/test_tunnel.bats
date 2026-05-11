@@ -62,15 +62,29 @@ setup() {
     [[ "$output" == *'ssh-keyscan'* ]]
 }
 
-@test "tunnel: emits StrictHostKeyChecking=yes" {
+@test "tunnel: emits StrictHostKeyChecking=accept-new when skip_remote_host_checks=true" {
     run autossh::tunnel
-    [[ "$output" == *'StrictHostKeyChecking=yes'* ]]
+    [[ "$output" == *'StrictHostKeyChecking=accept-new'* ]]
 }
 
 @test "tunnel: emits keep-alive options" {
     run autossh::tunnel
     [[ "$output" == *'ServerAliveInterval=30'* ]]
     [[ "$output" == *'ServerAliveCountMax=3'* ]]
+}
+
+@test "tunnel: emits StrictHostKeyChecking=yes when skip_remote_host_checks=false" {
+    _set_option skip_remote_host_checks false
+    echo "example.com ssh-ed25519 AAAA fake-remote-host-key" > "$BATS_TEST_TMPDIR/mock-keyscan-output"
+    run autossh::tunnel
+    [ "$status" -eq 0 ]
+    [[ "$output" == *'StrictHostKeyChecking=yes'* ]]
+}
+
+@test "tunnel: emits -M with monitoring_port value" {
+    _set_option monitoring_port 12345
+    run autossh::tunnel
+    [[ "$output" == *'-M 12345'* ]]
 }
 
 @test "tunnel: passes user@hostname and -p ssh_port" {
