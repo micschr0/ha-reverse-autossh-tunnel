@@ -18,7 +18,7 @@ setup() {
 @test "tunnel: primary -R uses defaults when local_* unset" {
     run autossh::tunnel
     [ "$status" -eq 0 ]
-    [[ "$output" == *'-R 127.0.0.1:8123:127.0.0.1:8123'* ]]
+    [[ "$output" == *'-R 127.0.0.1:8123:homeassistant:8123'* ]]
 }
 
 @test "tunnel: primary -R honors local_ip_address and local_port" {

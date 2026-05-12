@@ -11,7 +11,7 @@ homeassistant: "2024.1.0"
 startup: application
 boot: auto
 init: false
-host_network: true
+host_network: false
 options:
   hostname: ""
   ssh_port: 22
