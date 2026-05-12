@@ -7,7 +7,6 @@ image: ghcr.io/micschr0/{arch}-autossh
 arch:
   - amd64
   - aarch64
-  - armv7
 homeassistant: "2024.1.0"
 startup: application
 boot: auto
