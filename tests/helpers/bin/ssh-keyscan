@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Mock: emits whatever the test wrote into $BATS_TEST_TMPDIR/mock-keyscan-output
+cat "$BATS_TEST_TMPDIR/mock-keyscan-output"

@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Mock: records every invocation so tests can assert on the command line
+printf '%s\n' "$*" >> "$BATS_TEST_TMPDIR/mock-autossh-args"
