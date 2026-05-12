@@ -5,7 +5,9 @@
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": ["^autossh/build\\.yaml$"],
+      "managerFilePatterns": [
+        "/^autossh/build\\.yaml$/"
+      ],
       "matchStrings": [
         "(?<depName>ghcr\\.io/home-assistant/[a-z0-9]+-base):(?<currentValue>[\\d.+-]+)"
       ],
