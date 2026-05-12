@@ -99,3 +99,18 @@ setup() {
     run autossh::tunnel
     [[ "$output" == *'-v -o ConnectTimeout=10'* ]]
 }
+
+@test "tunnel: accepts hostname as bind address in remote_forwarding" {
+    _set_option remote_forwarding '["openssh-server:44400:127.0.0.1:8123","*:9000:homeassistant:9000"]'
+    run autossh::tunnel
+    [ "$status" -eq 0 ]
+    [[ "$output" == *'-R openssh-server:44400:127.0.0.1:8123'* ]]
+    [[ "$output" == *'-R *:9000:homeassistant:9000'* ]]
+}
+
+@test "tunnel: rejects malformed remote_forwarding entry" {
+    _set_option remote_forwarding '["not-valid-at-all"]'
+    run autossh::tunnel
+    [ "$status" -ne 0 ]
+    [[ "$output" == *'[FATAL]'* ]]
+}
