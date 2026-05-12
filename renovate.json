@@ -1,8 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended", ":semanticCommits"],
-  "autodiscover": true,
-  "autodiscoverFilter": ["micschr0/ha-reverse-autossh-tunnel"],
   "schedule": ["before 6am on monday"],
   "customManagers": [
     {
