@@ -1,19 +1,20 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended", ":semanticCommits"],
+  "autodiscover": true,
+  "autodiscoverFilter": ["micschr0/ha-reverse-autossh-tunnel"],
   "schedule": ["before 6am on monday"],
   "customManagers": [
     {
       "customType": "regex",
       "fileMatch": ["^autossh/build\\.yaml$"],
       "matchStrings": [
-        "(?<depName>ghcr\\.io/home-assistant/[a-z0-9]+-base):(?<currentValue>[\\d.]+)"
+        "(?<depName>ghcr\\.io/home-assistant/[a-z0-9]+-base):(?<currentValue>[\\d.+-]+)"
       ],
       "datasourceTemplate": "docker"
     }
   ],
   "packageRules": [
-    { "matchManagers": ["github-actions"], "groupName": "github-actions" },
-    { "matchUpdateTypes": ["minor", "patch"], "automerge": false }
+    { "matchManagers": ["github-actions"], "groupName": "github-actions" }
   ]
 }
