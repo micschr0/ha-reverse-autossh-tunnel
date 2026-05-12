@@ -1,5 +1,5 @@
-# hadolint ignore=DL3006
 ARG BUILD_FROM
+# hadolint ignore=DL3006
 FROM ${BUILD_FROM}
 
 ENV LANG=C.UTF-8
