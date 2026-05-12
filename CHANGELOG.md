@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.1](https://github.com/micschr0/ha-reverse-autossh-tunnel/compare/v1.1.0...v1.1.1) (2026-05-12)
+
+
+### Bug Fixes
+
+* **ci:** mock bashio in smoke test — real bashio requires Supervisor API in CI ([15183c3](https://github.com/micschr0/ha-reverse-autossh-tunnel/commit/15183c3bc7542889f71e15c35312873900c95b07))
+* **renovate:** add autodiscover + repo filter; drop deprecated packageRule ([046d7dc](https://github.com/micschr0/ha-reverse-autossh-tunnel/commit/046d7dc3e119ba775f6c0461605acdb6a083d1d7))
+* **renovate:** move autodiscover settings from repo config to workflow env vars ([b3b78d6](https://github.com/micschr0/ha-reverse-autossh-tunnel/commit/b3b78d6a85825ed8613fef0bf4863463c379c498))
+
 ## [1.1.0](https://github.com/micschr0/ha-reverse-autossh-tunnel/compare/v1.0.0...v1.1.0) (2026-05-12)
 
 
