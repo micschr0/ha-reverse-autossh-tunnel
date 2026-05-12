@@ -1,25 +1,27 @@
 name: SSH Reverse Tunnel (autossh)
-version: 1.0.0
+version: 1.1.0
 slug: autossh
-description: Persistent reverse SSH tunnel for exposing Home Assistant through a remote server
+description: >-
+  Persistent reverse SSH tunnel for exposing Home Assistant through a remote
+  server
 url: https://github.com/micschr0/ha-reverse-autossh-tunnel
 image: ghcr.io/micschr0/{arch}-autossh
 arch:
   - amd64
   - aarch64
-homeassistant: "2024.1.0"
+homeassistant: 2024.1.0
 startup: application
 boot: auto
 init: false
 host_network: false
 options:
-  hostname: ""
+  hostname: ''
   ssh_port: 22
   username: autossh
-  remote_ip_address: "127.0.0.1"
+  remote_ip_address: 127.0.0.1
   remote_port: 8123
   remote_forwarding: []
-  other_ssh_options: ""
+  other_ssh_options: ''
   monitoring_port: 0
   force_keygen: false
   skip_remote_host_checks: false
