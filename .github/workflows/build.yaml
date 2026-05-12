@@ -65,11 +65,20 @@ jobs:
             -v /tmp/options.json:/data/options.json:ro \
             --entrypoint /bin/bash \
             autossh:smoke \
-            -c 'source /usr/lib/bashio/bashio.sh && \
-                source /usr/lib/autossh/keygen.sh && \
-                source /usr/lib/autossh/tunnel.sh && \
-                autossh::keygen && \
-                autossh::tunnel' \
+            -c '
+              bashio::config()       { jq -r --arg k "$1" ".[\$k] // empty" /data/options.json; }
+              bashio::config.true()  { [[ "$(jq -r --arg k "$1" ".[\$k]" /data/options.json)" == "true" ]]; }
+              bashio::config.has_value() { local v; v=$(jq -r --arg k "$1" ".[\$k] // empty" /data/options.json); [[ -n "$v" && "$v" != "null" ]]; }
+              bashio::var.is_empty() { [[ -z "$1" ]]; }
+              bashio::log.info()    { echo "[INFO] $*"; }
+              bashio::log.warning() { echo "[WARN] $*"; }
+              bashio::log.error()   { echo "[ERROR] $*" >&2; }
+              bashio::log.fatal()   { echo "[FATAL] $*" >&2; }
+              source /usr/lib/autossh/keygen.sh
+              source /usr/lib/autossh/tunnel.sh
+              autossh::keygen
+              autossh::tunnel
+            ' \
             | tee smoke.log
           grep -q 'command="",restrict,port-forwarding' smoke.log
           grep -q 'autossh -M 0 -N' smoke.log
