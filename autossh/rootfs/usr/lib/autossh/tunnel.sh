@@ -37,14 +37,17 @@ autossh::tunnel() {
         bashio::log.warning "skip_remote_host_checks=true: using StrictHostKeyChecking=accept-new (host key trusted on first connect)."
     else
         bashio::log.info "Fetching SSH host key for ${hostname}:${ssh_port}"
-        local tmp_scan
+        local tmp_scan tmp_err
         tmp_scan=$(mktemp "${known_hosts}.XXXXXX")
-        ssh-keyscan -p "$ssh_port" "$hostname" 2>/dev/null > "$tmp_scan" || true
+        tmp_err=$(mktemp)
+        ssh-keyscan -T 15 -p "$ssh_port" "$hostname" > "$tmp_scan" 2>"$tmp_err" || true
         if [[ ! -s "$tmp_scan" ]]; then
-            rm -f "$tmp_scan"
+            [[ -s "$tmp_err" ]] && bashio::log.warning "ssh-keyscan: $(cat "$tmp_err")"
+            rm -f "$tmp_scan" "$tmp_err"
             bashio::log.fatal "ssh-keyscan returned no host keys for ${hostname}:${ssh_port}. Set skip_remote_host_checks=true to bypass (insecure)."
             return 1
         fi
+        rm -f "$tmp_err"
         if [[ -f "$known_hosts" ]] && ! diff -q "$known_hosts" "$tmp_scan" >/dev/null 2>&1; then
             bashio::log.warning "SSH host key for ${hostname} has changed — verify this is expected!"
         fi
@@ -65,12 +68,12 @@ autossh::tunnel() {
 
     local options_file="${HASSIO_OPTIONS_FILE:-/data/options.json}"
     local count entry i
-    local fw_re='^(([0-9]{1,3}\.){3}[0-9]{1,3}:)?[0-9]{1,5}:[A-Za-z0-9._-]+:[0-9]{1,5}$'
+    local fw_re='^((\*|([0-9]{1,3}\.){3}[0-9]{1,3}|[A-Za-z][A-Za-z0-9._-]*):)?[0-9]{1,5}:[A-Za-z0-9._-]+:[0-9]{1,5}$'
     count=$(jq -r '.remote_forwarding | length' "$options_file")
     for (( i = 0; i < count; i++ )); do
         entry=$(jq -r ".remote_forwarding[$i]" "$options_file")
         if ! [[ "$entry" =~ $fw_re ]]; then
-            bashio::log.fatal "remote_forwarding[$i]: invalid format '${entry}' — expected [bind-ip:]port:host:port"
+            bashio::log.fatal "remote_forwarding[$i]: invalid format '${entry}' — expected [bind-address:]port:host:port"
             return 1
         fi
         args+=(-R "$entry")
