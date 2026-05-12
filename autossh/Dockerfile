@@ -1,3 +1,4 @@
+# hadolint ignore=DL3006
 ARG BUILD_FROM
 FROM ${BUILD_FROM}
 
