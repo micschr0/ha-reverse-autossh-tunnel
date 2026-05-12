@@ -21,7 +21,9 @@ autossh::tunnel() {
     if bashio::config.has_value 'local_ip_address'; then
         local_ip=$(bashio::config 'local_ip_address')
     else
-        local_ip="$remote_ip"
+        # Default to the HA Core hostname in the Supervisor network so that
+        # host_network is not required for the common use-case.
+        local_ip="homeassistant"
     fi
     if bashio::config.has_value 'local_port'; then
         local_port=$(bashio::config 'local_port')
@@ -35,14 +37,19 @@ autossh::tunnel() {
         bashio::log.warning "skip_remote_host_checks=true: using StrictHostKeyChecking=accept-new (host key trusted on first connect)."
     else
         bashio::log.info "Fetching SSH host key for ${hostname}:${ssh_port}"
-        local scan
-        scan=$(ssh-keyscan -p "$ssh_port" "$hostname" 2>/dev/null || true)
-        if [[ -z "$scan" ]]; then
+        local tmp_scan
+        tmp_scan=$(mktemp "${known_hosts}.XXXXXX")
+        ssh-keyscan -p "$ssh_port" "$hostname" 2>/dev/null > "$tmp_scan" || true
+        if [[ ! -s "$tmp_scan" ]]; then
+            rm -f "$tmp_scan"
             bashio::log.fatal "ssh-keyscan returned no host keys for ${hostname}:${ssh_port}. Set skip_remote_host_checks=true to bypass (insecure)."
             return 1
         fi
-        echo "$scan" >> "$known_hosts"
-        chmod 600 "$known_hosts"
+        if [[ -f "$known_hosts" ]] && ! diff -q "$known_hosts" "$tmp_scan" >/dev/null 2>&1; then
+            bashio::log.warning "SSH host key for ${hostname} has changed — verify this is expected!"
+        fi
+        chmod 600 "$tmp_scan"
+        mv "$tmp_scan" "$known_hosts"
     fi
 
     args=(
@@ -58,13 +65,22 @@ autossh::tunnel() {
 
     local options_file="${HASSIO_OPTIONS_FILE:-/data/options.json}"
     local count entry i
+    local fw_re='^(([0-9]{1,3}\.){3}[0-9]{1,3}:)?[0-9]{1,5}:[A-Za-z0-9._-]+:[0-9]{1,5}$'
     count=$(jq -r '.remote_forwarding | length' "$options_file")
     for (( i = 0; i < count; i++ )); do
         entry=$(jq -r ".remote_forwarding[$i]" "$options_file")
+        if ! [[ "$entry" =~ $fw_re ]]; then
+            bashio::log.fatal "remote_forwarding[$i]: invalid format '${entry}' — expected [bind-ip:]port:host:port"
+            return 1
+        fi
         args+=(-R "$entry")
     done
 
     if [[ -n "$other_opts" ]]; then
+        if echo "$other_opts" | grep -qiE 'ProxyCommand|LocalCommand|PermitLocalCommand'; then
+            bashio::log.fatal "other_ssh_options: ProxyCommand and LocalCommand are forbidden."
+            return 1
+        fi
         # shellcheck disable=SC2206
         args+=( $other_opts )
     fi

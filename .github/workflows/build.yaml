@@ -32,7 +32,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build add-on (${{ matrix.arch }})
-        uses: home-assistant/builder@2024.08.2
+        uses: home-assistant/builder@2026.03.2
         with:
           args: |
             --${{ matrix.arch }} \
@@ -42,13 +42,13 @@ jobs:
   smoke:
     needs: build
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || github.event_name == 'release'
     steps:
       - uses: actions/checkout@v4
       - name: Build local amd64 image
         run: |
           docker build \
-            --build-arg BUILD_FROM=ghcr.io/home-assistant/amd64-base:3.23 \
+            --build-arg BUILD_FROM=ghcr.io/home-assistant/amd64-base:3.23-2026.04.0 \
             -t autossh:smoke \
             ./autossh
       - name: Run smoke test

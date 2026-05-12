@@ -14,8 +14,9 @@ RUN apk add --no-cache \
 COPY rootfs/ /
 
 RUN chmod 755 \
-    /etc/services.d/autossh/run \
-    /etc/services.d/autossh/finish \
-    /usr/lib/autossh/validate.sh \
-    /usr/lib/autossh/keygen.sh \
-    /usr/lib/autossh/tunnel.sh
+        /etc/services.d/autossh/run \
+        /etc/services.d/autossh/finish \
+    && chmod 644 \
+        /usr/lib/autossh/validate.sh \
+        /usr/lib/autossh/keygen.sh \
+        /usr/lib/autossh/tunnel.sh
