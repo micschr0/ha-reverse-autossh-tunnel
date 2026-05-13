@@ -1,6 +1,9 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended", ":semanticCommits"],
+  "extends": ["config:recommended", ":semanticCommits", "helpers:pinGitHubActionDigests"],
+  "gitAuthor": "renovate[bot] <renovate[bot]@users.noreply.github.com>",
+  "osvVulnerabilityAlerts": true,
+  "prConcurrentLimit": 3,
   "schedule": ["before 6am on monday"],
   "customManagers": [
     {
@@ -15,6 +18,6 @@
     }
   ],
   "packageRules": [
-    { "matchManagers": ["github-actions"], "groupName": "github-actions" }
+    { "matchManagers": ["github-actions"], "groupName": "github-actions", "automerge": true, "automergeType": "pr" }
   ]
 }

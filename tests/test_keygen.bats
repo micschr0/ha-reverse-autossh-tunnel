@@ -35,7 +35,7 @@ setup() {
 @test "keygen: logs public key with restriction template" {
     run autossh::keygen
     [ "$status" -eq 0 ]
-    [[ "$output" == *'command="",restrict,port-forwarding,permitopen="127.0.0.1:8123"'* ]]
+    [[ "$output" == *'command="",restrict,port-forwarding,permitlisten="127.0.0.1:8123"'* ]]
     [[ "$output" == *'ssh-ed25519 '* ]]
 }
 
@@ -43,7 +43,7 @@ setup() {
     _set_option_str remote_ip_address "10.0.0.5"
     _set_option remote_port 4443
     run autossh::keygen
-    [[ "$output" == *'permitopen="10.0.0.5:4443"'* ]]
+    [[ "$output" == *'permitlisten="10.0.0.5:4443"'* ]]
 }
 
 @test "keygen: private key is mode 0600" {
