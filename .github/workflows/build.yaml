@@ -82,6 +82,8 @@ jobs:
           container-registry-password: ${{ secrets.GITHUB_TOKEN }}
           context: autossh
           build-args: BUILD_FROM=${{ steps.base.outputs.build_from }}
+          cosign-base-verify: ${{ steps.base.outputs.build_from }}
+          cosign-base-identity: 'https://github.com/home-assistant/docker-base/.*'
           push: ${{ needs.init.outputs.publish }}
 
   manifest:
@@ -110,10 +112,15 @@ jobs:
     if: github.event_name == 'pull_request' || github.event_name == 'release' || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v6
+      - name: Read amd64 base image
+        id: smoke_base
+        run: |
+          BUILD_FROM=$(grep -E "^\s+amd64:" autossh/build.yaml | sed 's/^[[:space:]]*[^:]*:[[:space:]]*//')
+          echo "build_from=$BUILD_FROM" >> "$GITHUB_OUTPUT"
       - name: Build local amd64 image
         run: |
           docker build \
-            --build-arg BUILD_FROM=ghcr.io/home-assistant/amd64-base:3.23-2026.04.0 \
+            --build-arg BUILD_FROM=${{ steps.smoke_base.outputs.build_from }} \
             -t autossh:smoke \
             ./autossh
       - name: Run smoke test

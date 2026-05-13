@@ -12,7 +12,7 @@
         "/^autossh/build\\.yaml$/"
       ],
       "matchStrings": [
-        "(?<depName>ghcr\\.io/home-assistant/[a-z0-9]+-base):(?<currentValue>[\\d.+-]+)"
+        "(?<depName>ghcr\\.io/home-assistant/[a-z0-9]+-base):(?<currentValue>[\\d.+-]+)@(?<currentDigest>sha256:[a-f0-9]{64})"
       ],
       "datasourceTemplate": "docker"
     }
