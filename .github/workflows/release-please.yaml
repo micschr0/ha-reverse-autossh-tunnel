@@ -12,7 +12,14 @@ jobs:
       pull-requests: write
     steps:
       - uses: googleapis/release-please-action@v5
+        id: release
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+      - name: Trigger Docker image build
+        if: ${{ steps.release.outputs.release_created }}
+        run: gh workflow run build.yaml --repo ${{ github.repository }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
