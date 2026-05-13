@@ -67,7 +67,7 @@ jobs:
       - name: Read base image
         id: base
         run: |
-          BUILD_FROM=$(grep -E "^\s+${{ matrix.arch }}:" autossh/build.yaml | sed 's/.*: *//')
+          BUILD_FROM=$(grep -E "^\s+${{ matrix.arch }}:" autossh/build.yaml | sed 's/^[[:space:]]*[^:]*:[[:space:]]*//')
           echo "build_from=$BUILD_FROM" >> "$GITHUB_OUTPUT"
 
       - name: Build add-on (${{ matrix.arch }})
