@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.2.0](https://github.com/micschr0/ha-reverse-autossh-tunnel/compare/v1.1.2...v1.2.0) (2026-05-13)
+
+
+### Features
+
+* improve UX, security and robustness ([87d7639](https://github.com/micschr0/ha-reverse-autossh-tunnel/commit/87d76399706637bd68b76c2f1cb37c5e6f6d7988))
+* **keygen:** auto-reset force_keygen to false after key generation ([17ab29c](https://github.com/micschr0/ha-reverse-autossh-tunnel/commit/17ab29cab4d3830b44d36024ed4f84809eadcb8e))
+
+
+### Bug Fixes
+
+* **ci:** repair failing BATS tests and harden Renovate config ([cf00a61](https://github.com/micschr0/ha-reverse-autossh-tunnel/commit/cf00a61f727b2ea1d55527eab51f622753b923c1))
+
 ## [1.1.2](https://github.com/micschr0/ha-reverse-autossh-tunnel/compare/v1.1.1...v1.1.2) (2026-05-12)
 
 
