@@ -36,10 +36,6 @@ autossh::tunnel() {
         strict_check="accept-new"
         bashio::log.warning "skip_remote_host_checks=true: using StrictHostKeyChecking=accept-new (host key trusted on first connect)."
     else
-        if ! timeout 5 bash -c ">/dev/tcp/${hostname}/${ssh_port}" 2>/dev/null; then
-            bashio::log.fatal "Cannot reach ${hostname}:${ssh_port} — check that the SSH server is running and the port is open in the firewall."
-            return 1
-        fi
         bashio::log.info "Fetching SSH host key for ${hostname}:${ssh_port}"
         local tmp_scan tmp_err
         tmp_scan=$(mktemp "${known_hosts}.XXXXXX")
