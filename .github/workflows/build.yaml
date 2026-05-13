@@ -10,39 +10,96 @@ on:
     - cron: '0 5 * * 1'  # Monday 05:00 UTC — weekly base-image refresh
   workflow_dispatch:
 
+env:
+  ARCHITECTURES: '["amd64", "aarch64"]'
+  IMAGE_NAME: autossh
+
 jobs:
-  build:
+  init:
+    name: Initialize
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    strategy:
-      fail-fast: false
-      matrix:
-        arch: [amd64, aarch64]
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+      publish: ${{ steps.meta.outputs.publish }}
+      version: ${{ steps.meta.outputs.version }}
     steps:
       - uses: actions/checkout@v6
 
-      - name: Login to GHCR
-        if: github.event_name == 'release' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-        uses: docker/login-action@v4
+      - name: Build matrix
+        id: matrix
+        uses: home-assistant/builder/actions/prepare-multi-arch-matrix@2026.03.2
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          architectures: ${{ env.ARCHITECTURES }}
+          image-name: ${{ env.IMAGE_NAME }}
+
+      - name: Set build metadata
+        id: meta
+        run: |
+          case "${{ github.event_name }}" in
+            release)
+              echo "publish=true" >> "$GITHUB_OUTPUT"
+              echo "version=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
+              ;;
+            schedule|workflow_dispatch)
+              echo "publish=true" >> "$GITHUB_OUTPUT"
+              echo "version=latest" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "publish=false" >> "$GITHUB_OUTPUT"
+              echo "version=dev" >> "$GITHUB_OUTPUT"
+              ;;
+          esac
+
+  build:
+    name: Build ${{ matrix.arch }}
+    needs: init
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v6
 
       - name: Build add-on (${{ matrix.arch }})
-        uses: home-assistant/builder@2026.03.2
+        uses: home-assistant/builder/actions/build-image@2026.03.2
         with:
-          args: |
-            --${{ matrix.arch }} \
-            --target autossh \
-            ${{ (github.event_name == 'release' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && format('--docker-hub ghcr.io/{0}', github.repository_owner) || '--test' }}
+          arch: ${{ matrix.arch }}
+          image: ${{ matrix.image }}
+          image-tags: |
+            ${{ needs.init.outputs.version }}
+            latest
+          version: ${{ needs.init.outputs.version }}
+          container-registry-password: ${{ secrets.GITHUB_TOKEN }}
+          push: ${{ needs.init.outputs.publish }}
+
+  manifest:
+    name: Publish multi-arch manifest
+    needs: [init, build]
+    if: needs.init.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      packages: write
+    steps:
+      - name: Publish multi-arch manifest
+        uses: home-assistant/builder/actions/publish-multi-arch-manifest@2026.03.2
+        with:
+          architectures: ${{ env.ARCHITECTURES }}
+          image-name: ${{ env.IMAGE_NAME }}
+          image-tags: |
+            ${{ needs.init.outputs.version }}
+            latest
+          container-registry-password: ${{ secrets.GITHUB_TOKEN }}
 
   smoke:
+    name: Smoke test
     needs: build
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' || github.event_name == 'release'
+    if: github.event_name == 'pull_request' || github.event_name == 'release' || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v6
       - name: Build local amd64 image
