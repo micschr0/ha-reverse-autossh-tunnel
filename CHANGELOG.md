@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.3.0](https://github.com/micschr0/ha-reverse-autossh-tunnel/compare/v1.2.0...v1.3.0) (2026-05-13)
+
+
+### Features
+
+* **ci:** migrate to home-assistant/builder reusable actions ([cfc219d](https://github.com/micschr0/ha-reverse-autossh-tunnel/commit/cfc219d540a0877a8a553afbb61db61cca1f5e3e))
+* **security:** harden Dockerfile, config and add AppArmor profile ([#10](https://github.com/micschr0/ha-reverse-autossh-tunnel/issues/10)) ([00254a8](https://github.com/micschr0/ha-reverse-autossh-tunnel/commit/00254a84237dbc55f7c7b8d2b8924995df26a96a))
+* **security:** pin base images by digest and verify cosign signatures ([#11](https://github.com/micschr0/ha-reverse-autossh-tunnel/issues/11)) ([dd096b5](https://github.com/micschr0/ha-reverse-autossh-tunnel/commit/dd096b597a44fe22716f1aa1fb3c3bb7ea9a7b0c))
+
+
+### Bug Fixes
+
+* **ci:** fix greedy sed stripping image registry from BUILD_FROM ([2ffd610](https://github.com/micschr0/ha-reverse-autossh-tunnel/commit/2ffd610349bde7492ae3be488e613767ca8ba326))
+* **ci:** pass BUILD_FROM build-arg from autossh/build.yaml ([cd8534c](https://github.com/micschr0/ha-reverse-autossh-tunnel/commit/cd8534c9f1bb930bc34c6d6fbad3d08ace45394a))
+* **ci:** set context: autossh for build-image action ([549941a](https://github.com/micschr0/ha-reverse-autossh-tunnel/commit/549941a0c0eff9d8b94169238937013dbbaacd77))
+* **ci:** trigger Docker build after release-please creates a release ([5fc66a8](https://github.com/micschr0/ha-reverse-autossh-tunnel/commit/5fc66a8ffaf0a93089048ba1ddc1fa3159e939a2))
+
 ## [1.2.0](https://github.com/micschr0/ha-reverse-autossh-tunnel/compare/v1.1.2...v1.2.0) (2026-05-13)
 
 
