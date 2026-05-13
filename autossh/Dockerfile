@@ -1,9 +1,16 @@
+# syntax=docker/dockerfile:1
 ARG BUILD_FROM
 # hadolint ignore=DL3006
 FROM ${BUILD_FROM}
 
+LABEL \
+    io.hass.type="addon" \
+    maintainer="https://github.com/micschr0"
+
 ENV LANG=C.UTF-8
 
+# curl required by validate.sh (Supervisor API health check) and
+# keygen.sh (force_keygen reset via Supervisor API).
 # hadolint ignore=DL3018
 RUN apk add --no-cache \
     autossh \
@@ -11,12 +18,8 @@ RUN apk add --no-cache \
     openssh-client \
     tzdata
 
-COPY rootfs/ /
-
-RUN chmod 755 \
-        /etc/services.d/autossh/run \
-        /etc/services.d/autossh/finish \
-    && chmod 644 \
-        /usr/lib/autossh/validate.sh \
-        /usr/lib/autossh/keygen.sh \
-        /usr/lib/autossh/tunnel.sh
+COPY --chmod=755 rootfs/etc/services.d/autossh/run /etc/services.d/autossh/run
+COPY --chmod=755 rootfs/etc/services.d/autossh/finish /etc/services.d/autossh/finish
+COPY --chmod=644 rootfs/usr/lib/autossh/validate.sh /usr/lib/autossh/validate.sh
+COPY --chmod=644 rootfs/usr/lib/autossh/keygen.sh /usr/lib/autossh/keygen.sh
+COPY --chmod=644 rootfs/usr/lib/autossh/tunnel.sh /usr/lib/autossh/tunnel.sh

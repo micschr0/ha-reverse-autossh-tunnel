@@ -1,0 +1,41 @@
+#include <tunables/global>
+
+profile autossh flags=(attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+  #include <abstractions/nameservice>
+
+  # S6-Overlay
+  /init ix,
+  /bin/** ix,
+  /usr/bin/** ix,
+  /run/{s6,s6-rc*,service}/** ix,
+  /package/** ix,
+  /command/** ix,
+  /etc/services.d/** rwix,
+  /etc/cont-init.d/** rwix,
+  /etc/cont-finish.d/** rwix,
+  /run/{,**} rwk,
+  /dev/tty rw,
+
+  # autossh + openssh
+  /usr/bin/autossh ix,
+  /usr/bin/ssh ix,
+  /usr/bin/ssh-keygen ix,
+  /etc/ssh/** r,
+  /tmp/** rw,
+
+  # HA Add-on Data (SSH-Keys zur Laufzeit)
+  /data/** rw,
+
+  # Shell-Scripts (werden gesourced, nicht direkt ausgeführt)
+  /usr/lib/autossh/*.sh r,
+
+  # Netzwerk: SSH-Tunnel
+  network tcp,
+  network inet,
+  network inet6,
+
+  # Logging
+  /proc/self/fd/ r,
+  /dev/null rw,
+}
