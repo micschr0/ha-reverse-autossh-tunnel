@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/micschr0/ha-reverse-autossh-tunnel/compare/v1.1.1...v1.1.2) (2026-05-12)
+
+
+### Bug Fixes
+
+* **tunnel:** allow hostname/wildcard as bind address in remote_forwarding ([0714181](https://github.com/micschr0/ha-reverse-autossh-tunnel/commit/0714181d6eb79df628170af47fd7afac1ac474ce))
+
 ## [1.1.1](https://github.com/micschr0/ha-reverse-autossh-tunnel/compare/v1.1.0...v1.1.1) (2026-05-12)
 
 
