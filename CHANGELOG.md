@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/micschr0/ha-reverse-autossh-tunnel/compare/v1.3.0...v1.3.1) (2026-05-13)
+
+
+### Bug Fixes
+
+* **ci:** grant actions:write so release-please can dispatch build.yaml ([568b7d6](https://github.com/micschr0/ha-reverse-autossh-tunnel/commit/568b7d6f8a85b15931c1273352bfbc90fc075f9e))
+
 ## [1.3.0](https://github.com/micschr0/ha-reverse-autossh-tunnel/compare/v1.2.0...v1.3.0) (2026-05-13)
 
 
