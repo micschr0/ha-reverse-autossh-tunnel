@@ -80,12 +80,12 @@ Restart Home Assistant.
 | `username` | str | `autossh` | User on the remote server. |
 | `remote_ip_address` | str | `127.0.0.1` | Interface on the remote to bind the forwarded port. |
 | `remote_port` | port | `8123` | Port on the remote to bind to. |
-| `local_ip_address` | str? | `remote_ip_address` | HA host's address as seen from the container. Set only if HA is not on localhost relative to the add-on. |
+| `local_ip_address` | str? | `homeassistant` | HA host's address as seen from the container. The default (`homeassistant`) works for most installations. Set to `127.0.0.1` only if you run HA without the Supervisor. |
 | `local_port` | port? | `remote_port` | HA port. |
 | `remote_forwarding` | list[str] | `[]` | Extra `-R` forwards, e.g. `["2222:127.0.0.1:22"]`. |
 | `other_ssh_options` | str | `""` | Appended to the autossh/ssh command. Use `-v` for verbose logs. |
 | `monitoring_port` | int (0–65535) | `0` | autossh's echo-monitoring port. `0` disables the echo port; connection health relies on `ServerAliveInterval`/`ServerAliveCountMax` plus s6 restart. Set a free TCP port (e.g. `12345`) to enable autossh's active connection check. |
-| `force_keygen` | bool | `false` | Regenerate the keypair on next start. |
+| `force_keygen` | bool | `false` | Generate a new ED25519 keypair on the next start. **Set back to `false` immediately after** — leaving it `true` creates a new key on every restart, breaking the tunnel until you re-authorize the new public key on the remote server. |
 | `skip_remote_host_checks` | bool | `false` | Skip our `ssh-keyscan` pinning and use `StrictHostKeyChecking=accept-new` instead. Insecure for first-connect MITM; use only for debugging or known-good networks. |
 
 ## Remote-server patterns
@@ -156,6 +156,9 @@ exposed port — `8123` itself stays plain HTTP.
 ## Troubleshooting
 
 - **"Option \"hostname\" is required"** — set `hostname` in the config.
+- **A new key was generated after an update** — `force_keygen` was set
+  to `true`. Set it back to `false` and restart. Copy the new public key
+  from the log into `authorized_keys` on the remote server.
 - **autossh reconnects forever** — the public key is not yet in the
   remote `authorized_keys`. Copy the line from the log.
 - **"ssh-keyscan returned no host keys"** — DNS or network failure
