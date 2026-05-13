@@ -20,9 +20,8 @@ options:
   username: autossh
   remote_ip_address: 127.0.0.1
   remote_port: 8123
-  remote_forwarding: []
   other_ssh_options: ''
-  monitoring_port: 0
+  monitoring_port: 20000
   force_keygen: false
   skip_remote_host_checks: false
 schema:
@@ -33,8 +32,6 @@ schema:
   remote_port: port
   local_ip_address: str?
   local_port: port?
-  remote_forwarding:
-    - str
   other_ssh_options: str
   monitoring_port: int(0,65535)
   force_keygen: bool

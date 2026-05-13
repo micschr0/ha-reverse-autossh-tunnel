@@ -36,6 +36,10 @@ autossh::tunnel() {
         strict_check="accept-new"
         bashio::log.warning "skip_remote_host_checks=true: using StrictHostKeyChecking=accept-new (host key trusted on first connect)."
     else
+        if ! timeout 5 bash -c ">/dev/tcp/${hostname}/${ssh_port}" 2>/dev/null; then
+            bashio::log.fatal "Cannot reach ${hostname}:${ssh_port} — check that the SSH server is running and the port is open in the firewall."
+            return 1
+        fi
         bashio::log.info "Fetching SSH host key for ${hostname}:${ssh_port}"
         local tmp_scan tmp_err
         tmp_scan=$(mktemp "${known_hosts}.XXXXXX")
@@ -61,23 +65,11 @@ autossh::tunnel() {
         -i "$key_file"
         -o "ServerAliveInterval=30"
         -o "ServerAliveCountMax=3"
+        -o "ExitOnForwardFailure=yes"
         -o "StrictHostKeyChecking=${strict_check}"
         -o "UserKnownHostsFile=${known_hosts}"
         -R "${remote_ip}:${remote_port}:${local_ip}:${local_port}"
     )
-
-    local options_file="${HASSIO_OPTIONS_FILE:-/data/options.json}"
-    local count entry i
-    local fw_re='^((\*|([0-9]{1,3}\.){3}[0-9]{1,3}|[A-Za-z][A-Za-z0-9._-]*):)?[0-9]{1,5}:[A-Za-z0-9._-]+:[0-9]{1,5}$'
-    count=$(jq -r '.remote_forwarding | length' "$options_file")
-    for (( i = 0; i < count; i++ )); do
-        entry=$(jq -r ".remote_forwarding[$i]" "$options_file")
-        if ! [[ "$entry" =~ $fw_re ]]; then
-            bashio::log.fatal "remote_forwarding[$i]: invalid format '${entry}' — expected [bind-address:]port:host:port"
-            return 1
-        fi
-        args+=(-R "$entry")
-    done
 
     if [[ -n "$other_opts" ]]; then
         if echo "$other_opts" | grep -qiE 'ProxyCommand|LocalCommand|PermitLocalCommand'; then

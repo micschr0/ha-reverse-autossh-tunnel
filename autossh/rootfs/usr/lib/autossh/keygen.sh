@@ -5,7 +5,7 @@
 autossh::keygen() {
     local key_dir="${AUTOSSH_DATA_DIR:-/data}/.ssh"
     local key_file="${key_dir}/id_ed25519"
-    local remote_ip remote_port pubkey
+    local remote_ip remote_port pubkey key_is_new=false
 
     mkdir -p "$key_dir"
     chmod 700 "$key_dir"
@@ -13,6 +13,7 @@ autossh::keygen() {
     if [[ -f "$key_file" ]] && ! bashio::config.true 'force_keygen'; then
         bashio::log.info "Re-using existing SSH key at ${key_file}"
     else
+        key_is_new=true
         bashio::log.info "Generating new ED25519 SSH key at ${key_file}"
         rm -f "$key_file" "${key_file}.pub"
         ssh-keygen -t ed25519 -N "" -f "$key_file" -C "ha-reverse-autossh-tunnel" >/dev/null
@@ -42,6 +43,16 @@ autossh::keygen() {
 
     bashio::log.info "Public key — paste this line into ~/.ssh/authorized_keys on the remote server:"
     bashio::log.info ''
-    bashio::log.info "command=\"\",restrict,port-forwarding,permitopen=\"${remote_ip}:${remote_port}\" ${pubkey}"
+    bashio::log.info "command=\"\",restrict,port-forwarding,permitlisten=\"${remote_ip}:${remote_port}\" ${pubkey}"
     bashio::log.info ''
+    bashio::log.info "What each part means:"
+    bashio::log.info "  command=\"\"         — no shell access; the key cannot run commands"
+    bashio::log.info "  restrict            — disables all features (X11, agent forwarding, etc.) by default"
+    bashio::log.info "  port-forwarding     — re-enables only port forwarding"
+    bashio::log.info "  permitlisten=ip:port — restricts the reverse tunnel to bind only on this address and port"
+    bashio::log.info ''
+
+    if [[ "$key_is_new" == "true" ]]; then
+        bashio::log.warning "[ACTION REQUIRED] Copy the line above into ~/.ssh/authorized_keys on your remote server, then restart this add-on."
+    fi
 }

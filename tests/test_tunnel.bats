@@ -8,9 +8,8 @@ setup() {
     _set_option_str username "autossh"
     _set_option_str remote_ip_address "127.0.0.1"
     _set_option remote_port 8123
-    _set_option monitoring_port 0
+    _set_option monitoring_port 20000
     _set_option_str other_ssh_options ""
-    _set_option remote_forwarding '[]'
     _set_option skip_remote_host_checks true
     echo "ssh-ed25519 AAAA fake-host-key" > "$AUTOSSH_DATA_DIR/.ssh/id_ed25519"
 }
@@ -26,17 +25,6 @@ setup() {
     _set_option local_port 8123
     run autossh::tunnel
     [[ "$output" == *'-R 127.0.0.1:8123:192.168.1.50:8123'* ]]
-}
-
-@test "tunnel: appends one -R per remote_forwarding entry in order" {
-    _set_option remote_forwarding '["2222:127.0.0.1:22","9999:127.0.0.1:9999"]'
-    run autossh::tunnel
-    [[ "$output" == *'-R 2222:127.0.0.1:22'* ]]
-    [[ "$output" == *'-R 9999:127.0.0.1:9999'* ]]
-    local idx_2222 idx_9999
-    idx_2222=$(echo "$output" | grep -bo '2222:127.0.0.1:22' | head -1 | cut -d: -f1)
-    idx_9999=$(echo "$output" | grep -bo '9999:127.0.0.1:9999' | head -1 | cut -d: -f1)
-    [ "$idx_2222" -lt "$idx_9999" ]
 }
 
 @test "tunnel: skips ssh-keyscan when skip_remote_host_checks=true" {
@@ -73,6 +61,11 @@ setup() {
     [[ "$output" == *'ServerAliveCountMax=3'* ]]
 }
 
+@test "tunnel: emits ExitOnForwardFailure=yes" {
+    run autossh::tunnel
+    [[ "$output" == *'ExitOnForwardFailure=yes'* ]]
+}
+
 @test "tunnel: emits StrictHostKeyChecking=yes when skip_remote_host_checks=false" {
     _set_option skip_remote_host_checks false
     echo "example.com ssh-ed25519 AAAA fake-remote-host-key" > "$BATS_TEST_TMPDIR/mock-keyscan-output"
@@ -98,19 +91,4 @@ setup() {
     _set_option_str other_ssh_options "-v -o ConnectTimeout=10"
     run autossh::tunnel
     [[ "$output" == *'-v -o ConnectTimeout=10'* ]]
-}
-
-@test "tunnel: accepts hostname as bind address in remote_forwarding" {
-    _set_option remote_forwarding '["openssh-server:44400:127.0.0.1:8123","*:9000:homeassistant:9000"]'
-    run autossh::tunnel
-    [ "$status" -eq 0 ]
-    [[ "$output" == *'-R openssh-server:44400:127.0.0.1:8123'* ]]
-    [[ "$output" == *'-R *:9000:homeassistant:9000'* ]]
-}
-
-@test "tunnel: rejects malformed remote_forwarding entry" {
-    _set_option remote_forwarding '["not-valid-at-all"]'
-    run autossh::tunnel
-    [ "$status" -ne 0 ]
-    [[ "$output" == *'[FATAL]'* ]]
 }
