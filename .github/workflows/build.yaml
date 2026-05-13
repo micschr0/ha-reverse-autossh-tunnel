@@ -64,6 +64,12 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Read base image
+        id: base
+        run: |
+          BUILD_FROM=$(grep -E "^\s+${{ matrix.arch }}:" autossh/build.yaml | sed 's/.*: *//')
+          echo "build_from=$BUILD_FROM" >> "$GITHUB_OUTPUT"
+
       - name: Build add-on (${{ matrix.arch }})
         uses: home-assistant/builder/actions/build-image@2026.03.2
         with:
@@ -75,6 +81,7 @@ jobs:
           version: ${{ needs.init.outputs.version }}
           container-registry-password: ${{ secrets.GITHUB_TOKEN }}
           context: autossh
+          build-args: BUILD_FROM=${{ steps.base.outputs.build_from }}
           push: ${{ needs.init.outputs.publish }}
 
   manifest:
