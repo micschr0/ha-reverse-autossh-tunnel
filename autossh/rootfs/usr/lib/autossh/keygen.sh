@@ -16,6 +16,22 @@ autossh::keygen() {
         bashio::log.info "Generating new ED25519 SSH key at ${key_file}"
         rm -f "$key_file" "${key_file}.pub"
         ssh-keygen -t ed25519 -N "" -f "$key_file" -C "ha-reverse-autossh-tunnel" >/dev/null
+
+        if [[ -n "${SUPERVISOR_TOKEN:-}" ]]; then
+            local options_file="${HASSIO_OPTIONS_FILE:-/data/options.json}"
+            local updated_opts
+            updated_opts=$(jq '.force_keygen = false' "$options_file")
+            if curl -s -X POST \
+                -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" \
+                -H "Content-Type: application/json" \
+                -d "{\"options\": ${updated_opts}}" \
+                http://supervisor/addons/self/options \
+                | grep -q '"result":"ok"'; then
+                bashio::log.info "force_keygen reset to false — key was generated once as requested."
+            else
+                bashio::log.warning "Could not reset force_keygen via Supervisor API — set it to false manually."
+            fi
+        fi
     fi
 
     chmod 600 "$key_file"
