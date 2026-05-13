@@ -56,8 +56,7 @@ jobs:
           cat > /tmp/options.json <<'EOF'
           {"hostname":"smoke.invalid","ssh_port":22,"username":"autossh",
            "remote_ip_address":"127.0.0.1","remote_port":8123,
-           "remote_forwarding":["2222:127.0.0.1:22"],"other_ssh_options":"",
-           "monitoring_port":0,"force_keygen":false,
+           "other_ssh_options":"","monitoring_port":20000,"force_keygen":false,
            "skip_remote_host_checks":true}
           EOF
           docker run --rm \
@@ -80,6 +79,6 @@ jobs:
               autossh::tunnel
             ' \
             | tee smoke.log
-          grep -q 'command="",restrict,port-forwarding' smoke.log
-          grep -q 'autossh -M 0 -N' smoke.log
-          grep -q -- '-R 2222:127.0.0.1:22' smoke.log
+          grep -q 'permitlisten=' smoke.log
+          grep -q 'autossh -M 20000 -N' smoke.log
+          grep -q 'ExitOnForwardFailure=yes' smoke.log
