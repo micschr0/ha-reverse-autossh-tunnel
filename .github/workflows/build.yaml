@@ -74,6 +74,7 @@ jobs:
             latest
           version: ${{ needs.init.outputs.version }}
           container-registry-password: ${{ secrets.GITHUB_TOKEN }}
+          context: autossh
           push: ${{ needs.init.outputs.publish }}
 
   manifest:
