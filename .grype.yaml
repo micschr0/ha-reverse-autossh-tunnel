@@ -1,0 +1,29 @@
+# Ignore rules for the Grype container CVE scan.
+#
+# Every entry MUST justify why we accept the risk and carry a review
+# date (~90 days). Renovate bumps the cosign-verified Home Assistant
+# base image when upstream rebuilds; revisit then and prune.
+#
+# Last reviewed: 2026-05-19 — review by: 2026-08-17
+
+ignore:
+  # Go stdlib vulnerabilities baked into /usr/bin/tempio (HA's templating
+  # helper, statically linked against go1.23.3). Fixed only by an HA base
+  # image rebuild against a newer Go toolchain.
+  - vulnerability: CVE-2025-68121
+    package:
+      name: stdlib
+      type: go-module
+  - vulnerability: CVE-2026-27143
+    package:
+      name: stdlib
+      type: go-module
+
+  # OpenSSL 3.5.5-r0 shipped in Alpine 3.23.3. Pending Alpine package
+  # bump propagating to the HA amd64-base image.
+  - vulnerability: CVE-2026-31789
+    package:
+      name: libcrypto3
+  - vulnerability: CVE-2026-31789
+    package:
+      name: libssl3
