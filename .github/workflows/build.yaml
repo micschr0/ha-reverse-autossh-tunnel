@@ -14,6 +14,9 @@ env:
   ARCHITECTURES: '["amd64", "aarch64"]'
   IMAGE_NAME: autossh
 
+permissions:
+  contents: read
+
 jobs:
   init:
     name: Initialize
@@ -23,22 +26,25 @@ jobs:
       publish: ${{ steps.meta.outputs.publish }}
       version: ${{ steps.meta.outputs.version }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Build matrix
         id: matrix
-        uses: home-assistant/builder/actions/prepare-multi-arch-matrix@2026.03.2
+        uses: home-assistant/builder/actions/prepare-multi-arch-matrix@62a1597b84b3461abad9816d9cd92862a2b542c3 # 2026.03.2
         with:
           architectures: ${{ env.ARCHITECTURES }}
           image-name: ${{ env.IMAGE_NAME }}
 
       - name: Set build metadata
         id: meta
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          case "${{ github.event_name }}" in
+          case "$EVENT_NAME" in
             release)
               echo "publish=true" >> "$GITHUB_OUTPUT"
-              echo "version=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
+              echo "version=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
               ;;
             schedule|workflow_dispatch)
               echo "publish=true" >> "$GITHUB_OUTPUT"
@@ -62,16 +68,18 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Read base image
         id: base
+        env:
+          ARCH: ${{ matrix.arch }}
         run: |
-          BUILD_FROM=$(grep -E "^\s+${{ matrix.arch }}:" autossh/build.yaml | sed 's/^[[:space:]]*[^:]*:[[:space:]]*//')
+          BUILD_FROM=$(grep -E "^\s+${ARCH}:" autossh/build.yaml | sed 's/^[[:space:]]*[^:]*:[[:space:]]*//')
           echo "build_from=$BUILD_FROM" >> "$GITHUB_OUTPUT"
 
       - name: Build add-on (${{ matrix.arch }})
-        uses: home-assistant/builder/actions/build-image@2026.03.2
+        uses: home-assistant/builder/actions/build-image@62a1597b84b3461abad9816d9cd92862a2b542c3 # 2026.03.2
         with:
           arch: ${{ matrix.arch }}
           image: ${{ matrix.image }}
@@ -96,7 +104,7 @@ jobs:
       packages: write
     steps:
       - name: Publish multi-arch manifest
-        uses: home-assistant/builder/actions/publish-multi-arch-manifest@2026.03.2
+        uses: home-assistant/builder/actions/publish-multi-arch-manifest@62a1597b84b3461abad9816d9cd92862a2b542c3 # 2026.03.2
         with:
           architectures: ${{ env.ARCHITECTURES }}
           image-name: ${{ env.IMAGE_NAME }}
@@ -111,7 +119,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' || github.event_name == 'release' || github.event_name == 'workflow_dispatch'
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Read amd64 base image
         id: smoke_base
         run: |
@@ -154,3 +162,66 @@ jobs:
           grep -q 'permitlisten=' smoke.log
           grep -q 'autossh -M 20000 -N' smoke.log
           grep -q 'ExitOnForwardFailure=yes' smoke.log
+
+  scan:
+    name: Container CVE scan
+    needs: init
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Read amd64 base image
+        id: scan_base
+        run: |
+          BUILD_FROM=$(grep -E "^\s+amd64:" autossh/build.yaml | sed 's/^[[:space:]]*[^:]*:[[:space:]]*//')
+          echo "build_from=$BUILD_FROM" >> "$GITHUB_OUTPUT"
+      - name: Build local amd64 image
+        run: |
+          docker build \
+            --build-arg BUILD_FROM=${{ steps.scan_base.outputs.build_from }} \
+            -t autossh:scan \
+            ./autossh
+      - name: Scan image with Grype
+        id: grype
+        uses: anchore/scan-action@e1165082ffb1fe366ebaf02d8526e7c4989ea9d2 # v7.4.0
+        with:
+          image: autossh:scan
+          fail-build: true
+          severity-cutoff: high
+          output-format: sarif
+      - name: Upload SARIF to GitHub Security
+        if: always() && steps.grype.outputs.sarif != ''
+        uses: github/codeql-action/upload-sarif@458d36d7d4f47d0dd16ca424c1d3cda0060f1360 # v3.35.5
+        with:
+          sarif_file: ${{ steps.grype.outputs.sarif }}
+          category: grype
+
+  sbom:
+    name: Generate SBOM
+    needs: [init, manifest]
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Read amd64 base image
+        id: sbom_base
+        run: |
+          BUILD_FROM=$(grep -E "^\s+amd64:" autossh/build.yaml | sed 's/^[[:space:]]*[^:]*:[[:space:]]*//')
+          echo "build_from=$BUILD_FROM" >> "$GITHUB_OUTPUT"
+      - name: Build local amd64 image
+        run: |
+          docker build \
+            --build-arg BUILD_FROM=${{ steps.sbom_base.outputs.build_from }} \
+            -t autossh:sbom \
+            ./autossh
+      - name: Generate CycloneDX SBOM with Syft
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
+        with:
+          image: autossh:sbom
+          format: cyclonedx-json
+          artifact-name: autossh-${{ needs.init.outputs.version }}-sbom.cdx.json
+          upload-release-assets: true
