@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/micschr0/ha-reverse-autossh-tunnel/compare/v1.3.1...v1.4.0) (2026-05-23)
+
+
+### Features
+
+* **security:** add Grype CVE scan, Syft SBOM, and zizmor workflow audit ([c32427b](https://github.com/micschr0/ha-reverse-autossh-tunnel/commit/c32427ba35123081948af756578caeeb60e68518))
+
 ## [1.3.1](https://github.com/micschr0/ha-reverse-autossh-tunnel/compare/v1.3.0...v1.3.1) (2026-05-13)
 
 
