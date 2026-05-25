@@ -4,7 +4,7 @@
 # date (~90 days). Renovate bumps the cosign-verified Home Assistant
 # base image when upstream rebuilds; revisit then and prune.
 #
-# Last reviewed: 2026-05-19 — review by: 2026-08-17
+# Last reviewed: 2026-05-25 — review by: 2026-08-23
 
 ignore:
   # Go stdlib and stdlib-adjacent vulnerabilities baked into /usr/bin/tempio
@@ -23,16 +23,24 @@ ignore:
     package:
       name: stdlib
       type: go-module
+  # Same vulnerability — older Grype DBs surface it under the GHSA id,
+  # newer DBs under the CVE alias. Keep both so the rule matches across
+  # Grype upgrades.
+  - vulnerability: CVE-2024-45337
+    package:
+      name: golang.org/x/crypto
+      type: go-module
   - vulnerability: GHSA-v778-237x-gjrc
     package:
       name: golang.org/x/crypto
       type: go-module
 
-  # OpenSSL 3.5.5-r0 shipped in Alpine 3.23.3. Pending Alpine package
-  # bump propagating to the HA amd64-base image.
-  - vulnerability: CVE-2026-31789
+  # BIND 9.20.22-r0 vulnerabilities in the HA base image. BIND is only used
+  # as a resolver library by tooling inside the base; not exposed by this
+  # add-on. Pending Alpine package bump propagating to the HA base.
+  - vulnerability: CVE-2026-3593
     package:
-      name: libcrypto3
-  - vulnerability: CVE-2026-31789
+      name: bind-libs
+  - vulnerability: CVE-2026-3593
     package:
-      name: libssl3
+      name: bind-tools
