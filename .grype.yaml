@@ -23,7 +23,14 @@ ignore:
     package:
       name: stdlib
       type: go-module
+  # Same vulnerability — older Grype DBs surface it under the GHSA id,
+  # newer DBs under the CVE alias. Keep both so the rule matches across
+  # Grype upgrades.
   - vulnerability: CVE-2024-45337
+    package:
+      name: golang.org/x/crypto
+      type: go-module
+  - vulnerability: GHSA-v778-237x-gjrc
     package:
       name: golang.org/x/crypto
       type: go-module
