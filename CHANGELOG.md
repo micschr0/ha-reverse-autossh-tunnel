@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.3](https://github.com/micschr0/ha-reverse-autossh-tunnel/compare/v1.4.2...v1.4.3) (2026-05-26)
+
+
+### Bug Fixes
+
+* **apparmor:** grant read on /init and s6 runtime paths ([#23](https://github.com/micschr0/ha-reverse-autossh-tunnel/issues/23)) ([abf857a](https://github.com/micschr0/ha-reverse-autossh-tunnel/commit/abf857aaa7277aa3b855d4e1b83b1d294a3e468b))
+
 ## [1.4.2](https://github.com/micschr0/ha-reverse-autossh-tunnel/compare/v1.4.1...v1.4.2) (2026-05-26)
 
 
