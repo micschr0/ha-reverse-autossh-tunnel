@@ -5,9 +5,11 @@ profile autossh flags=(attach_disconnected,mediate_deleted) {
   #include <abstractions/nameservice>
 
   # S6-Overlay
-  /init ix,
+  /init rix,
   /bin/** ix,
   /usr/bin/** ix,
+  /etc/s6/** rix,
+  /run/s6/** rwix,
   /run/{s6,s6-rc*,service}/** ix,
   /package/** ix,
   /command/** ix,
