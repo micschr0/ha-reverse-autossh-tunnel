@@ -215,6 +215,62 @@ jobs:
           grep -q 'autossh -M 20000 -N' smoke.log
           grep -q 'ExitOnForwardFailure=yes' smoke.log
 
+  e2e:
+    # Boots the container with the real s6-overlay entrypoint (not the bashio
+    # stub used by the smoke test) and asserts no boot-time failures and that
+    # autossh actually reaches dry-run output. Catches AppArmor regressions,
+    # missing file perms, broken bashio paths, and s6 service definition bugs
+    # that the smoke test cannot see because it bypasses /init.
+    name: Container boot e2e
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.event_name == 'release' || github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Read amd64 base image
+        id: e2e_base
+        run: |
+          BUILD_FROM=$(grep -E "^\s+amd64:" autossh/build.yaml | sed 's/^[[:space:]]*[^:]*:[[:space:]]*//')
+          echo "build_from=$BUILD_FROM" >> "$GITHUB_OUTPUT"
+      - name: Build local amd64 image
+        run: |
+          docker build \
+            --build-arg BUILD_FROM=${{ steps.e2e_base.outputs.build_from }} \
+            -t autossh:e2e \
+            ./autossh
+      - name: Boot container under real /init
+        run: |
+          mkdir -p /tmp/e2e-data
+          cat > /tmp/e2e-data/options.json <<'EOF'
+          {"hostname":"e2e.invalid","ssh_port":22,"username":"autossh",
+           "remote_ip_address":"127.0.0.1","remote_port":8123,
+           "other_ssh_options":"","monitoring_port":20000,"force_keygen":false,
+           "skip_remote_host_checks":true}
+          EOF
+          docker run -d --name e2e \
+            -e AUTOSSH_DRYRUN=1 \
+            -v /tmp/e2e-data:/data \
+            autossh:e2e
+          # s6 boot + at least one autossh service iteration
+          sleep 8
+          docker logs e2e > /tmp/e2e.log 2>&1 || true
+          docker rm -f e2e >/dev/null
+          echo '--- captured logs ---'
+          cat /tmp/e2e.log
+      - name: Assert no boot-time failures
+        run: |
+          set -euo pipefail
+          fail=0
+          if grep -qE "Permission denied|s6-overlay-suexec: fatal|exec format error" /tmp/e2e.log; then
+            echo "::error::container boot produced a fatal/permission error"
+            fail=1
+          fi
+          if ! grep -q "autossh -M" /tmp/e2e.log; then
+            echo "::error::autossh service did not reach dry-run output (validate/keygen/tunnel chain broken)"
+            fail=1
+          fi
+          exit $fail
+
   scan:
     name: Container CVE scan
     needs: init

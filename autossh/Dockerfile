@@ -1,4 +1,5 @@
 # syntax=docker/dockerfile:1
+# check=error=true;skip=InvalidDefaultArgInFrom
 ARG BUILD_FROM
 # hadolint ignore=DL3006
 FROM ${BUILD_FROM}
