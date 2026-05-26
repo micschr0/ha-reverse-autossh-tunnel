@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.5](https://github.com/micschr0/ha-reverse-autossh-tunnel/compare/v1.4.4...v1.4.5) (2026-05-26)
+
+
+### Bug Fixes
+
+* **apparmor:** remove custom profile, rely on Supervisor defaults ([#27](https://github.com/micschr0/ha-reverse-autossh-tunnel/issues/27)) ([7009236](https://github.com/micschr0/ha-reverse-autossh-tunnel/commit/70092362449cb029584ed1795a46db4d1c09adfe))
+
 ## [1.4.4](https://github.com/micschr0/ha-reverse-autossh-tunnel/compare/v1.4.3...v1.4.4) (2026-05-26)
 
 
