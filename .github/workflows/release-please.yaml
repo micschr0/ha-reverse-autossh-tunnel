@@ -21,6 +21,8 @@ jobs:
 
       - name: Trigger Docker image build
         if: ${{ steps.release.outputs.release_created }}
-        run: gh workflow run build.yaml --repo ${{ github.repository }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          TAG: ${{ steps.release.outputs.tag_name }}
+        run: gh workflow run build.yaml --repo "$REPO" -f version="$TAG"
