@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/micschr0/ha-reverse-autossh-tunnel/compare/v1.4.0...v1.4.1) (2026-05-26)
+
+
+### Bug Fixes
+
+* **ci:** publish versioned image on release and verify GHCR tag ([#17](https://github.com/micschr0/ha-reverse-autossh-tunnel/issues/17)) ([6f50774](https://github.com/micschr0/ha-reverse-autossh-tunnel/commit/6f50774172dbe2725dadca1089d3fa5665a2cc98))
+
 ## [1.4.0](https://github.com/micschr0/ha-reverse-autossh-tunnel/compare/v1.3.1...v1.4.0) (2026-05-23)
 
 
