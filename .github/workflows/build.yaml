@@ -9,6 +9,12 @@ on:
   schedule:
     - cron: '0 5 * * 1'  # Monday 05:00 UTC — weekly base-image refresh
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag to publish (e.g. v1.4.0). Empty publishes "latest" only.'
+        required: false
+        type: string
+        default: ''
 
 env:
   ARCHITECTURES: '["amd64", "aarch64"]'
@@ -40,13 +46,24 @@ jobs:
         env:
           EVENT_NAME: ${{ github.event_name }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
+          INPUT_VERSION: ${{ inputs.version }}
         run: |
+          # Strip optional leading "v" so image tags stay numeric (1.4.0, not v1.4.0).
+          strip_v() { printf '%s' "${1#v}"; }
           case "$EVENT_NAME" in
             release)
               echo "publish=true" >> "$GITHUB_OUTPUT"
-              echo "version=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
+              echo "version=$(strip_v "$RELEASE_TAG")" >> "$GITHUB_OUTPUT"
               ;;
-            schedule|workflow_dispatch)
+            workflow_dispatch)
+              echo "publish=true" >> "$GITHUB_OUTPUT"
+              if [[ -n "$INPUT_VERSION" ]]; then
+                echo "version=$(strip_v "$INPUT_VERSION")" >> "$GITHUB_OUTPUT"
+              else
+                echo "version=latest" >> "$GITHUB_OUTPUT"
+              fi
+              ;;
+            schedule)
               echo "publish=true" >> "$GITHUB_OUTPUT"
               echo "version=latest" >> "$GITHUB_OUTPUT"
               ;;
@@ -112,6 +129,38 @@ jobs:
             ${{ needs.init.outputs.version }}
             latest
           container-registry-password: ${{ secrets.GITHUB_TOKEN }}
+
+  verify-publish:
+    # Fails loudly if the published version tag is missing from GHCR. Without this,
+    # release-please can succeed while HA Supervisor cannot pull <repo>:<version>.
+    name: Verify published image
+    needs: [init, manifest]
+    if: needs.init.outputs.publish == 'true' && needs.init.outputs.version != 'latest'
+    runs-on: ubuntu-latest
+    permissions:
+      packages: read
+    steps:
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+      - name: Check version tag is pullable on GHCR
+        env:
+          OWNER: ${{ github.repository_owner }}
+          VERSION: ${{ needs.init.outputs.version }}
+        run: |
+          set -euo pipefail
+          missing=0
+          for arch in $(printf '%s' "$ARCHITECTURES" | jq -r '.[]'); do
+            ref="ghcr.io/${OWNER}/${arch}-${IMAGE_NAME}:${VERSION}"
+            echo "Checking $ref"
+            if ! docker manifest inspect "$ref" > /dev/null; then
+              echo "::error::Image tag missing on GHCR: $ref"
+              missing=1
+            fi
+          done
+          if [[ $missing -ne 0 ]]; then
+            echo "::error::One or more per-arch images for ${VERSION} are not published. HA Supervisor will fail to pull this version."
+            exit 1
+          fi
 
   smoke:
     name: Smoke test
