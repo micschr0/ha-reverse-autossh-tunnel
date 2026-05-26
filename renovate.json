@@ -3,6 +3,7 @@
   "extends": ["config:recommended", ":semanticCommits", "helpers:pinGitHubActionDigests"],
   "gitAuthor": "renovate[bot] <renovate[bot]@users.noreply.github.com>",
   "osvVulnerabilityAlerts": true,
+  "dependencyDashboard": false,
   "prConcurrentLimit": 3,
   "schedule": ["before 6am on monday"],
   "customManagers": [
