@@ -215,6 +215,57 @@ jobs:
           grep -q 'autossh -M 20000 -N' smoke.log
           grep -q 'ExitOnForwardFailure=yes' smoke.log
 
+  e2e:
+    # Boots the container under real /init (s6-overlay) and asserts no
+    # boot-time infrastructure failure. Catches AppArmor profile regressions,
+    # broken file permissions, missing files, arch mismatches, and s6 service
+    # definition errors — i.e. any class of bug that prevents the service
+    # script from being executed at all.
+    #
+    # Does NOT assert that the autossh validate/keygen/tunnel chain succeeds:
+    # bashio::config in CI cannot reach the Supervisor HTTP API and won't fall
+    # back to /data/options.json, so the chain fails at validate by design.
+    # Script-chain correctness is covered by the Smoke job (with bashio stubs).
+    name: Container boot e2e
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.event_name == 'release' || github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Read amd64 base image
+        id: e2e_base
+        run: |
+          BUILD_FROM=$(grep -E "^\s+amd64:" autossh/build.yaml | sed 's/^[[:space:]]*[^:]*:[[:space:]]*//')
+          echo "build_from=$BUILD_FROM" >> "$GITHUB_OUTPUT"
+      - name: Build local amd64 image
+        run: |
+          docker build \
+            --build-arg BUILD_FROM=${{ steps.e2e_base.outputs.build_from }} \
+            -t autossh:e2e \
+            ./autossh
+      - name: Boot container under /init and capture log
+        run: |
+          docker run -d --name e2e autossh:e2e
+          sleep 5
+          docker logs e2e > /tmp/e2e.log 2>&1
+          docker rm -f e2e >/dev/null
+          echo '--- boot log ---'
+          cat /tmp/e2e.log
+          echo '--- end ---'
+      - name: Assert no boot-time infrastructure failure
+        run: |
+          set -euo pipefail
+          if grep -qE 'Permission denied|s6-overlay-suexec: fatal|exec format error' /tmp/e2e.log; then
+            echo "::error::container boot produced a fatal / permission-denied error"
+            exit 1
+          fi
+          # Sanity: at least one s6 service must have been started (proves
+          # /init reached stage 2 — guards against silently-empty logs).
+          if ! grep -q 's6-rc:.*successfully started' /tmp/e2e.log; then
+            echo "::error::s6 did not successfully start any service — boot did not reach stage 2"
+            exit 1
+          fi
+
   scan:
     name: Container CVE scan
     needs: init
