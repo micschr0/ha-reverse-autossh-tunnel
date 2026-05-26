@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.2](https://github.com/micschr0/ha-reverse-autossh-tunnel/compare/v1.4.1...v1.4.2) (2026-05-26)
+
+
+### Bug Fixes
+
+* **config:** remove invalid privileged: false from addon config ([#20](https://github.com/micschr0/ha-reverse-autossh-tunnel/issues/20)) ([6deb37b](https://github.com/micschr0/ha-reverse-autossh-tunnel/commit/6deb37bbc7408a334e5ecfeea072b3c110b09d86))
+
 ## [1.4.1](https://github.com/micschr0/ha-reverse-autossh-tunnel/compare/v1.4.0...v1.4.1) (2026-05-26)
 
 
