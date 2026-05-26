@@ -245,16 +245,23 @@ jobs:
         # in per-service logging that docker logs cannot see by default).
         run: |
           mkdir -p /tmp/e2e-data
-          cat > /tmp/e2e-data/options.json <<'EOF'
-          {"hostname":"e2e.invalid","ssh_port":22,"username":"autossh",
-           "remote_ip_address":"127.0.0.1","remote_port":8123,
-           "other_ssh_options":"","monitoring_port":20000,"force_keygen":false,
-           "skip_remote_host_checks":true}
-          EOF
+          jq -n '{
+            hostname: "e2e.invalid",
+            ssh_port: 22,
+            username: "autossh",
+            remote_ip_address: "127.0.0.1",
+            remote_port: 8123,
+            other_ssh_options: "",
+            monitoring_port: 20000,
+            force_keygen: false,
+            skip_remote_host_checks: true
+          }' > /tmp/e2e-data/options.json
           chmod 644 /tmp/e2e-data/options.json
           echo '--- options.json on host ---'
           ls -la /tmp/e2e-data/
           cat /tmp/e2e-data/options.json
+          echo '--- host jq parse ---'
+          jq -r '.hostname' /tmp/e2e-data/options.json
           docker run -d --name e2e \
             -v /tmp/e2e-data:/data \
             autossh:e2e
