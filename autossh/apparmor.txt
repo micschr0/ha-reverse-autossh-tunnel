@@ -4,40 +4,28 @@ profile autossh flags=(attach_disconnected,mediate_deleted) {
   #include <abstractions/base>
   #include <abstractions/nameservice>
 
-  # S6-Overlay
-  /init rix,
-  /bin/** ix,
-  /usr/bin/** ix,
-  /etc/s6/** rix,
-  /run/s6/** rwix,
-  /run/{s6,s6-rc*,service}/** ix,
-  /package/** ix,
-  /command/** ix,
-  /etc/services.d/** rwix,
-  /etc/cont-init.d/** rwix,
-  /etc/cont-finish.d/** rwix,
-  /run/{,**} rwk,
-  /dev/tty rw,
+  # Allow broadly for file, signal and network so s6-overlay, bashio and the
+  # SSH tunnel work without per-path maintenance. Pattern mirrors
+  # home-assistant/addons/dnsmasq. Security boundary is shifted to the
+  # explicit capability allowlist and the deny rules below.
+  file,
+  signal,
+  network,
 
-  # autossh + openssh
-  /usr/bin/autossh ix,
-  /usr/bin/ssh ix,
-  /usr/bin/ssh-keygen ix,
-  /etc/ssh/** r,
-  /tmp/** rw,
+  # Capabilities: only what autossh + ssh actually need.
+  capability net_bind_service,
+  capability setgid,
+  capability setuid,
+  capability dac_read_search,
+  capability chown,
+  capability fowner,
 
-  # HA Add-on Data (SSH-Keys zur Laufzeit)
-  /data/** rw,
-
-  # Shell-Scripts (werden gesourced, nicht direkt ausgeführt)
-  /usr/lib/autossh/*.sh r,
-
-  # Netzwerk: SSH-Tunnel
-  network tcp,
-  network inet,
-  network inet6,
-
-  # Logging
-  /proc/self/fd/ r,
-  /dev/null rw,
+  # Explicit escalation denies.
+  deny /proc/*/oom_score_adj w,
+  deny /sys/kernel/** w,
+  deny /sys/fs/cgroup/** w,
+  deny mount,
+  deny umount,
+  deny pivot_root,
+  deny ptrace,
 }
