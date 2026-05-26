@@ -50,15 +50,22 @@ jobs:
 
   addon-config:
     name: HA add-on config schema
-    # Validates autossh/config.yaml and autossh/build.yaml against the official
-    # Home Assistant add-on JSON Schemas. Catches type errors that the Supervisor
-    # rejects at runtime (e.g. `privileged: false` instead of a capability list).
+    # Validates autossh/config.yaml against the official HA add-on JSON Schema
+    # (vendored from frenck/action-addon-linter). Catches schema violations the
+    # Supervisor rejects at runtime, e.g. `privileged: false` instead of a list.
+    # build.yaml is intentionally not validated here — its digest-pin syntax
+    # (`tag@sha256:...`) is not covered by the vendored schema, and
+    # home-assistant/builder validates it during the Build job anyway.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - uses: frenck/action-addon-linter@f995494fd84fae6310d23617e66d0e37de4f14eb # v2.21.0
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
-          path: ./autossh
+          python-version: '3.13'
+      - name: Install validator dependencies
+        run: pip install jsonschema PyYAML
+      - name: Validate autossh/config.yaml
+        run: python3 tests/test_addon_config.py
 
   zizmor:
     name: GitHub Actions security scan
