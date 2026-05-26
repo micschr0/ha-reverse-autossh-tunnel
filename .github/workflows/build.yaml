@@ -251,11 +251,17 @@ jobs:
            "other_ssh_options":"","monitoring_port":20000,"force_keygen":false,
            "skip_remote_host_checks":true}
           EOF
+          chmod 644 /tmp/e2e-data/options.json
+          echo '--- options.json on host ---'
+          ls -la /tmp/e2e-data/
+          cat /tmp/e2e-data/options.json
           docker run -d --name e2e \
             -v /tmp/e2e-data:/data \
             autossh:e2e
           # Give s6 stage-1 init time to populate /var/run/s6/container_environment.
           sleep 5
+          echo '--- /data inside container ---'
+          docker exec e2e sh -c 'ls -la /data; echo; echo --- options.json content ---; cat /data/options.json 2>&1; echo; echo --- jq parse ---; jq -r ".hostname // \"<empty>\"" /data/options.json' 2>&1 || true
           echo '--- /init boot log ---'
           docker logs e2e 2>&1 | tee /tmp/e2e-boot.log
           echo '--- service run via docker exec ---'
