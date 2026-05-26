@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.4](https://github.com/micschr0/ha-reverse-autossh-tunnel/compare/v1.4.3...v1.4.4) (2026-05-26)
+
+
+### Bug Fixes
+
+* **apparmor:** adopt dnsmasq pattern, restrict via capabilities not paths ([#25](https://github.com/micschr0/ha-reverse-autossh-tunnel/issues/25)) ([051bc1e](https://github.com/micschr0/ha-reverse-autossh-tunnel/commit/051bc1ece9663b885347e86928433885b86b4039))
+
 ## [1.4.3](https://github.com/micschr0/ha-reverse-autossh-tunnel/compare/v1.4.2...v1.4.3) (2026-05-26)
 
 
