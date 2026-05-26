@@ -48,6 +48,18 @@ jobs:
       - name: Run BATS tests
         run: bats tests/
 
+  addon-config:
+    name: HA add-on config schema
+    # Validates autossh/config.yaml and autossh/build.yaml against the official
+    # Home Assistant add-on JSON Schemas. Catches type errors that the Supervisor
+    # rejects at runtime (e.g. `privileged: false` instead of a capability list).
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: frenck/action-addon-linter@f995494fd84fae6310d23617e66d0e37de4f14eb # v2.21.0
+        with:
+          path: ./autossh
+
   zizmor:
     name: GitHub Actions security scan
     runs-on: ubuntu-latest
