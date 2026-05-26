@@ -238,10 +238,11 @@ jobs:
             --build-arg BUILD_FROM=${{ steps.e2e_base.outputs.build_from }} \
             -t autossh:e2e \
             ./autossh
-      - name: Run service script with real bashio
-        # Executes /etc/services.d/autossh/run directly (via its #!/usr/bin/with-contenv bashio
-        # shebang) so bashio runs unstubbed and all log output reaches docker logs.
-        # The existing Smoke test stubs bashio; this catches bashio-real bugs Smoke misses.
+      - name: Boot container and run service via docker exec
+        # Boot with the real /init (s6-overlay sets up bashio container_environment
+        # and runs cont-init.d). Then run the service script via docker exec so
+        # bashio works AND stdout is captured (s6 longruns hide their output
+        # in per-service logging that docker logs cannot see by default).
         run: |
           mkdir -p /tmp/e2e-data
           cat > /tmp/e2e-data/options.json <<'EOF'
@@ -250,26 +251,35 @@ jobs:
            "other_ssh_options":"","monitoring_port":20000,"force_keygen":false,
            "skip_remote_host_checks":true}
           EOF
-          docker run --rm \
-            -e AUTOSSH_DRYRUN=1 \
+          docker run -d --name e2e \
             -v /tmp/e2e-data:/data \
-            --entrypoint /etc/services.d/autossh/run \
-            autossh:e2e \
-            > /tmp/e2e.log 2>&1
+            autossh:e2e
+          # Give s6 stage-1 init time to populate /var/run/s6/container_environment.
+          sleep 5
+          echo '--- /init boot log ---'
+          docker logs e2e 2>&1 | tee /tmp/e2e-boot.log
+          echo '--- service run via docker exec ---'
+          docker exec -e AUTOSSH_DRYRUN=1 e2e /etc/services.d/autossh/run > /tmp/e2e-service.log 2>&1
           rc=$?
           echo "service exit=$rc"
-          echo '--- service output ---'
-          cat /tmp/e2e.log
-          echo '--- end output ---'
+          cat /tmp/e2e-service.log
+          echo '--- end ---'
+          docker rm -f e2e >/dev/null
       - name: Assert service ran cleanly and reached dry-run
         run: |
           set -euo pipefail
           fail=0
-          if grep -qE 'Permission denied|\[FATAL\]|s6-overlay-suexec: fatal|exec format error' /tmp/e2e.log; then
+          # Boot phase: no AppArmor/perm denials, no s6 fatal.
+          if grep -qE 'Permission denied|s6-overlay-suexec: fatal|exec format error' /tmp/e2e-boot.log; then
+            echo "::error::container boot produced a fatal/permission error"
+            fail=1
+          fi
+          # Service phase: bashio fatal log, or no autossh dryrun output.
+          if grep -qE 'Permission denied|\[FATAL\]' /tmp/e2e-service.log; then
             echo "::error::service script produced a fatal/permission error"
             fail=1
           fi
-          if ! grep -q 'autossh -M' /tmp/e2e.log; then
+          if ! grep -q 'autossh -M' /tmp/e2e-service.log; then
             echo "::error::autossh service did not reach dry-run output (validate/keygen/tunnel chain broken)"
             fail=1
           fi
