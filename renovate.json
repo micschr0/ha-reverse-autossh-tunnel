@@ -1,6 +1,8 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended", ":semanticCommits", "helpers:pinGitHubActionDigests"],
+  "extends": ["config:best-practices", ":semanticCommits", "helpers:pinGitHubActionDigestsToSemver"],
+  "timezone": "Europe/Berlin",
+  "labels": ["dependencies"],
   "gitAuthor": "renovate[bot] <renovate[bot]@users.noreply.github.com>",
   "osvVulnerabilityAlerts": true,
   "dependencyDashboard": false,
