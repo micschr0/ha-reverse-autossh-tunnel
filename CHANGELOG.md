@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.4.6](https://github.com/micschr0/ha-reverse-autossh-tunnel/compare/v1.4.5...v1.4.6) (2026-06-26)
+
+
+### Bug Fixes
+
+* **docker:** consolidate apk upgrade + add into single RUN ([1b0bd05](https://github.com/micschr0/ha-reverse-autossh-tunnel/commit/1b0bd05951a14e210256d783c6d71e2ec2665499))
+* **renovate:** enable dashboard, remove schedule, fix push path, add write perms ([cfa0556](https://github.com/micschr0/ha-reverse-autossh-tunnel/commit/cfa05569225ed7cc50711484286e9706471c4847))
+* **security:** apk upgrade + grype ignore for base image Go CVEs ([87e773f](https://github.com/micschr0/ha-reverse-autossh-tunnel/commit/87e773ff491b4e1103f0af43f0a4ff10258c004c))
+* **security:** comprehensive grype ignore for base-image Go CVEs ([1e2cfd4](https://github.com/micschr0/ha-reverse-autossh-tunnel/commit/1e2cfd4507e174d247c7ad07c641a56baf53afc5))
+
 ## [1.4.5](https://github.com/micschr0/ha-reverse-autossh-tunnel/compare/v1.4.4...v1.4.5) (2026-05-26)
 
 
