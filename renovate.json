@@ -5,9 +5,8 @@
   "labels": ["dependencies"],
   "gitAuthor": "renovate[bot] <renovate[bot]@users.noreply.github.com>",
   "osvVulnerabilityAlerts": true,
-  "dependencyDashboard": false,
+  "dependencyDashboard": true,
   "prConcurrentLimit": 3,
-  "schedule": ["before 6am on monday"],
   "customManagers": [
     {
       "customType": "regex",
