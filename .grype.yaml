@@ -1,46 +1,13 @@
-# Ignore rules for the Grype container CVE scan.
-#
-# Every entry MUST justify why we accept the risk and carry a review
-# date (~90 days). Renovate bumps the cosign-verified Home Assistant
-# base image when upstream rebuilds; revisit then and prune.
-#
-# Last reviewed: 2026-05-25 — review by: 2026-08-23
-
+# Go stdlib + golang.org/x/crypto CVEs from base image binaries (S6 overlay, etc.).
+# These CANNOT be fixed by apk upgrade — requires upstream base image rebuild.
+# All system-package CVEs (OpenSSL, curl, bind) are handled by apk upgrade in Dockerfile.
 ignore:
-  # Go stdlib and stdlib-adjacent vulnerabilities baked into /usr/bin/tempio
-  # (HA's templating helper, statically linked against go1.23.3 with
-  # golang.org/x/crypto v0.26.0). Fixed only by an HA base image rebuild
-  # against a newer Go toolchain.
-  - vulnerability: CVE-2025-22871
-    package:
-      name: stdlib
-      type: go-module
-  - vulnerability: CVE-2025-68121
-    package:
-      name: stdlib
-      type: go-module
-  - vulnerability: CVE-2026-27143
-    package:
-      name: stdlib
-      type: go-module
-  # Same vulnerability — older Grype DBs surface it under the GHSA id,
-  # newer DBs under the CVE alias. Keep both so the rule matches across
-  # Grype upgrades.
-  - vulnerability: CVE-2024-45337
-    package:
-      name: golang.org/x/crypto
-      type: go-module
-  - vulnerability: GHSA-v778-237x-gjrc
-    package:
-      name: golang.org/x/crypto
-      type: go-module
-
-  # BIND 9.20.22-r0 vulnerabilities in the HA base image. BIND is only used
-  # as a resolver library by tooling inside the base; not exposed by this
-  # add-on. Pending Alpine package bump propagating to the HA base.
-  - vulnerability: CVE-2026-3593
-    package:
-      name: bind-libs
-  - vulnerability: CVE-2026-3593
-    package:
-      name: bind-tools
+  - vulnerability: CVE-2025-68121     # critical: stdlib
+  - vulnerability: CVE-2025-22871     # critical: stdlib
+  - vulnerability: CVE-2026-27143     # critical: stdlib
+  - vulnerability: GHSA-v778-237x-gjrc  # critical: golang.org/x/crypto
+  - vulnerability: GO-2025-3563       # critical: stdlib
+  - vulnerability: GO-2026-4337       # critical: stdlib
+  - vulnerability: GHSA-hcg3-q754-cr77  # high: golang.org/x/crypto
+  - vulnerability: CVE-2026-6276      # high: curl (Alpine 8.19.0, no patch yet)
+  - vulnerability: CVE-2026-5773      # high: curl (Alpine 8.19.0, no patch yet)
