@@ -13,6 +13,9 @@ ENV LANG=C.UTF-8
 # curl required by validate.sh (Supervisor API health check) and
 # keygen.sh (force_keygen reset via Supervisor API).
 # hadolint ignore=DL3018
+# Apply latest security patches (OpenSSL, curl, bind, etc.)
+RUN apk upgrade --no-cache
+
 RUN apk add --no-cache \
     autossh \
     curl \
