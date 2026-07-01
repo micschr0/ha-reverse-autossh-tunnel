@@ -95,7 +95,7 @@ jobs:
         env:
           ARCH: ${{ matrix.arch }}
         run: |
-          BUILD_FROM=$(grep -E "^\s+${ARCH}:" autossh/build.yaml | sed 's/^[[:space:]]*[^:]*:[[:space:]]*//')
+          BUILD_FROM=$(grep -A1 -E "^\s+${ARCH}:" autossh/build.yaml | tail -1 | sed 's/^[[:space:]]*//')
           echo "build_from=$BUILD_FROM" >> "$GITHUB_OUTPUT"
 
       - name: Build add-on (${{ matrix.arch }})
@@ -182,7 +182,7 @@ jobs:
       - name: Read amd64 base image
         id: smoke_base
         run: |
-          BUILD_FROM=$(grep -E "^\s+amd64:" autossh/build.yaml | sed 's/^[[:space:]]*[^:]*:[[:space:]]*//')
+          BUILD_FROM=$(grep -A1 -E "^\s+amd64:" autossh/build.yaml | tail -1 | sed 's/^[[:space:]]*//')
           echo "build_from=$BUILD_FROM" >> "$GITHUB_OUTPUT"
       - name: Build local amd64 image
         run: |
@@ -248,7 +248,7 @@ jobs:
       - name: Read amd64 base image
         id: e2e_base
         run: |
-          BUILD_FROM=$(grep -E "^\s+amd64:" autossh/build.yaml | sed 's/^[[:space:]]*[^:]*:[[:space:]]*//')
+          BUILD_FROM=$(grep -A1 -E "^\s+amd64:" autossh/build.yaml | tail -1 | sed 's/^[[:space:]]*//')
           echo "build_from=$BUILD_FROM" >> "$GITHUB_OUTPUT"
       - name: Build local amd64 image
         run: |
@@ -291,7 +291,7 @@ jobs:
       - name: Read amd64 base image
         id: scan_base
         run: |
-          BUILD_FROM=$(grep -E "^\s+amd64:" autossh/build.yaml | sed 's/^[[:space:]]*[^:]*:[[:space:]]*//')
+          BUILD_FROM=$(grep -A1 -E "^\s+amd64:" autossh/build.yaml | tail -1 | sed 's/^[[:space:]]*//')
           echo "build_from=$BUILD_FROM" >> "$GITHUB_OUTPUT"
       - name: Build local amd64 image
         run: |
@@ -326,7 +326,7 @@ jobs:
       - name: Read amd64 base image
         id: sbom_base
         run: |
-          BUILD_FROM=$(grep -E "^\s+amd64:" autossh/build.yaml | sed 's/^[[:space:]]*[^:]*:[[:space:]]*//')
+          BUILD_FROM=$(grep -A1 -E "^\s+amd64:" autossh/build.yaml | tail -1 | sed 's/^[[:space:]]*//')
           echo "build_from=$BUILD_FROM" >> "$GITHUB_OUTPUT"
       - name: Build local amd64 image
         run: |
