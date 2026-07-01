@@ -39,6 +39,16 @@ jobs:
       - name: Run yamllint
         run: yamllint repository.yaml autossh/config.yaml autossh/build.yaml .github/workflows/
 
+  json-lint:
+    name: JSON lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - name: Validate all JSON files are parseable
+        run: |
+          shopt -s globstar
+          cat **/*.json | jq '.'
+
   bats:
     runs-on: ubuntu-latest
     steps:
