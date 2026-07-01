@@ -1,3 +1,4 @@
+---
 configuration:
   hostname:
     name: Remote SSH server

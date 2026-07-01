@@ -1,6 +1,7 @@
+---
 name: Build
 
-on:
+"on":
   pull_request:
   push:
     branches: [main]
@@ -32,11 +33,12 @@ jobs:
       publish: ${{ steps.meta.outputs.publish }}
       version: ${{ steps.meta.outputs.version }}
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
 
       - name: Build matrix
         id: matrix
-        uses: home-assistant/builder/actions/prepare-multi-arch-matrix@4de35182ce1e329181bffcbcc84d33db5e2c7e10 # 2026.06.0
+        uses: >- # 2026.06.0
+          home-assistant/builder/actions/prepare-multi-arch-matrix@4de35182ce1e329181bffcbcc84d33db5e2c7e10
         with:
           architectures: ${{ env.ARCHITECTURES }}
           image-name: ${{ env.IMAGE_NAME }}
@@ -85,7 +87,7 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
 
       - name: Read base image
         id: base
@@ -96,7 +98,7 @@ jobs:
           echo "build_from=$BUILD_FROM" >> "$GITHUB_OUTPUT"
 
       - name: Build add-on (${{ matrix.arch }})
-        uses: home-assistant/builder/actions/build-image@4de35182ce1e329181bffcbcc84d33db5e2c7e10 # 2026.06.0
+        uses: home-assistant/builder/actions/build-image@4de35182ce1e329181bffcbcc84d33db5e2c7e10  # 2026.06.0
         with:
           arch: ${{ matrix.arch }}
           image: ${{ matrix.image }}
@@ -121,7 +123,8 @@ jobs:
       packages: write
     steps:
       - name: Publish multi-arch manifest
-        uses: home-assistant/builder/actions/publish-multi-arch-manifest@4de35182ce1e329181bffcbcc84d33db5e2c7e10 # 2026.06.0
+        uses: >- # 2026.06.0
+          home-assistant/builder/actions/publish-multi-arch-manifest@4de35182ce1e329181bffcbcc84d33db5e2c7e10
         with:
           architectures: ${{ env.ARCHITECTURES }}
           image-name: ${{ env.IMAGE_NAME }}
@@ -161,7 +164,8 @@ jobs:
             fi
           done
           if [[ $missing -ne 0 ]]; then
-            echo "::error::One or more per-arch images for ${VERSION} are not published. HA Supervisor will fail to pull this version."
+            echo "::error::One or more per-arch images for ${VERSION} are not published." \
+              "HA Supervisor will fail to pull this version."
             exit 1
           fi
 
@@ -169,9 +173,11 @@ jobs:
     name: Smoke test
     needs: build
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' || github.event_name == 'release' || github.event_name == 'workflow_dispatch'
+    if: >-
+      github.event_name == 'pull_request' || github.event_name == 'release'
+      || github.event_name == 'workflow_dispatch'
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
       - name: Read amd64 base image
         id: smoke_base
         run: |
@@ -199,7 +205,11 @@ jobs:
             -c '
               bashio::config()       { jq -r --arg k "$1" ".[\$k] // empty" /data/options.json; }
               bashio::config.true()  { [[ "$(jq -r --arg k "$1" ".[\$k]" /data/options.json)" == "true" ]]; }
-              bashio::config.has_value() { local v; v=$(jq -r --arg k "$1" ".[\$k] // empty" /data/options.json); [[ -n "$v" && "$v" != "null" ]]; }
+              bashio::config.has_value() {
+                local v
+                v=$(jq -r --arg k "$1" ".[\$k] // empty" /data/options.json)
+                [[ -n "$v" && "$v" != "null" ]]
+              }
               bashio::var.is_empty() { [[ -z "$1" ]]; }
               bashio::log.info()    { echo "[INFO] $*"; }
               bashio::log.warning() { echo "[WARN] $*"; }
@@ -229,9 +239,11 @@ jobs:
     name: Container boot e2e
     needs: build
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' || github.event_name == 'release' || github.event_name == 'workflow_dispatch'
+    if: >-
+      github.event_name == 'pull_request' || github.event_name == 'release'
+      || github.event_name == 'workflow_dispatch'
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
       - name: Read amd64 base image
         id: e2e_base
         run: |
@@ -274,7 +286,7 @@ jobs:
       contents: read
       security-events: write
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
       - name: Read amd64 base image
         id: scan_base
         run: |
@@ -288,7 +300,7 @@ jobs:
             ./autossh
       - name: Scan image with Grype
         id: grype
-        uses: anchore/scan-action@e1165082ffb1fe366ebaf02d8526e7c4989ea9d2 # v7.4.0
+        uses: anchore/scan-action@e1165082ffb1fe366ebaf02d8526e7c4989ea9d2  # v7.4.0
         with:
           image: autossh:scan
           fail-build: true
@@ -296,7 +308,7 @@ jobs:
           output-format: sarif
       - name: Upload SARIF to GitHub Security
         if: always() && steps.grype.outputs.sarif != ''
-        uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
+        uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e  # v4.36.2
         with:
           sarif_file: ${{ steps.grype.outputs.sarif }}
           category: grype
@@ -309,7 +321,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
       - name: Read amd64 base image
         id: sbom_base
         run: |
@@ -322,7 +334,7 @@ jobs:
             -t autossh:sbom \
             ./autossh
       - name: Generate CycloneDX SBOM with Syft
-        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610  # v0.24.0
         with:
           image: autossh:sbom
           format: cyclonedx-json

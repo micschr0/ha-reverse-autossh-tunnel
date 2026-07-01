@@ -1,3 +1,4 @@
+---
 # Go stdlib + golang.org/x/crypto CVEs from base image binaries (S6 overlay, etc.).
 # These CANNOT be fixed by apk upgrade — requires upstream base image rebuild.
 # All system-package CVEs (OpenSSL, curl, bind) are handled by apk upgrade in Dockerfile.
