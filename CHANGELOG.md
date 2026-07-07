@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.7](https://github.com/micschr0/ha-reverse-autossh-tunnel/compare/v1.4.6...v1.4.7) (2026-07-07)
+
+
+### Bug Fixes
+
+* harden security workflow (persist-credentials, action SHAs) ([82bb3ce](https://github.com/micschr0/ha-reverse-autossh-tunnel/commit/82bb3cec0957e187c775004d746c0e190686a2b0))
+* **renovate:** scope app token permissions, add persist-credentials ([dc78b2b](https://github.com/micschr0/ha-reverse-autossh-tunnel/commit/dc78b2ba6292b6ada61a7034634bd75f0a47463d))
+
 ## [1.4.6](https://github.com/micschr0/ha-reverse-autossh-tunnel/compare/v1.4.5...v1.4.6) (2026-06-26)
 
 
