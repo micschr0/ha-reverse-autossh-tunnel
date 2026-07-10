@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.7](https://github.com/micschr0/ha-reverse-autossh-tunnel/compare/v1.4.6...v1.4.7) (2026-07-10)
+
+
+### Bug Fixes
+
+* use RENOVATE_REPOSITORIES, drop autodiscover, add ONBOARDING ([e9d83c4](https://github.com/micschr0/ha-reverse-autossh-tunnel/commit/e9d83c4064a0a4cfd159d3dfe4df883ef969de23))
+
 ## [1.4.6](https://github.com/micschr0/ha-reverse-autossh-tunnel/compare/v1.4.5...v1.4.6) (2026-06-26)
 
 
