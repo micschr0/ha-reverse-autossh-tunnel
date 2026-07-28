@@ -3,7 +3,6 @@
   "extends": ["config:best-practices", ":semanticCommits", "helpers:pinGitHubActionDigestsToSemver"],
   "timezone": "Europe/Berlin",
   "labels": ["dependencies"],
-  "gitAuthor": "renovate[bot] <renovate[bot]@users.noreply.github.com>",
   "osvVulnerabilityAlerts": true,
   "dependencyDashboard": true,
   "prConcurrentLimit": 3,
