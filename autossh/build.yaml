@@ -1,6 +1,6 @@
 build_from:
-  amd64: ghcr.io/home-assistant/amd64-base:3.23-2026.05.0@sha256:b2edae5a74fa198b423e94f654ce0b03d667488e23ffec7dd6a4f5976f2af85c
-  aarch64: ghcr.io/home-assistant/aarch64-base:3.23-2026.05.0@sha256:98fae7002645c9a4a3b490686750cce0b97801be64e39b29ca8676d7c8dd2bd4
+  amd64: ghcr.io/home-assistant/amd64-base:3.24-2026.06.1@sha256:2b60b12b34ccd960fda082d223b40dbb2b0bb40af95f12912233b736f27fc47a
+  aarch64: ghcr.io/home-assistant/aarch64-base:3.24-2026.06.1@sha256:2ac8f73090063ac23e63a1adc144bd1d8aa88f5e5d92c68898102e81046084a4
 labels:
   org.opencontainers.image.title: ha-reverse-autossh-tunnel
   org.opencontainers.image.description: Persistent reverse SSH tunnel for Home Assistant
