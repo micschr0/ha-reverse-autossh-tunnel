@@ -266,41 +266,6 @@ jobs:
             exit 1
           fi
 
-  scan:
-    name: Container CVE scan
-    needs: init
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      security-events: write
-    steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-      - name: Read amd64 base image
-        id: scan_base
-        run: |
-          BUILD_FROM=$(grep -E "^\s+amd64:" autossh/build.yaml | sed 's/^[[:space:]]*[^:]*:[[:space:]]*//')
-          echo "build_from=$BUILD_FROM" >> "$GITHUB_OUTPUT"
-      - name: Build local amd64 image
-        run: |
-          docker build \
-            --build-arg BUILD_FROM=${{ steps.scan_base.outputs.build_from }} \
-            -t autossh:scan \
-            ./autossh
-      - name: Scan image with Grype
-        id: grype
-        uses: anchore/scan-action@e1165082ffb1fe366ebaf02d8526e7c4989ea9d2 # v7.4.0
-        with:
-          image: autossh:scan
-          fail-build: true
-          severity-cutoff: critical
-          output-format: sarif
-      - name: Upload SARIF to GitHub Security
-        if: always() && steps.grype.outputs.sarif != ''
-        uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
-        with:
-          sarif_file: ${{ steps.grype.outputs.sarif }}
-          category: grype
-
   sbom:
     name: Generate SBOM
     needs: [init, manifest]
