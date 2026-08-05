@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.4.7](https://github.com/micschr0/ha-reverse-autossh-tunnel/compare/v1.4.6...v1.4.7) (2026-08-05)
+
+
+### Bug Fixes
+
+* **build:** bump base image to Alpine 3.24 to clear critical curl CVEs ([#45](https://github.com/micschr0/ha-reverse-autossh-tunnel/issues/45)) ([2e19239](https://github.com/micschr0/ha-reverse-autossh-tunnel/commit/2e19239899d635ed8bfed853fc4014294a4c36e1))
+* **renovate:** correct permission input name, grant issues:write ([#43](https://github.com/micschr0/ha-reverse-autossh-tunnel/issues/43)) ([1bbbe52](https://github.com/micschr0/ha-reverse-autossh-tunnel/commit/1bbbe521f7265697aa231b811c88efc673cfb86a))
+* use RENOVATE_REPOSITORIES, drop autodiscover, add ONBOARDING ([e9d83c4](https://github.com/micschr0/ha-reverse-autossh-tunnel/commit/e9d83c4064a0a4cfd159d3dfe4df883ef969de23))
+
 ## [1.4.6](https://github.com/micschr0/ha-reverse-autossh-tunnel/compare/v1.4.5...v1.4.6) (2026-06-26)
 
 
